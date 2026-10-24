@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rsia-pasutri",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "require('http').createServer((q,r)=>{require('fs').readFile('index.html',(e,d)=>{r.writeHead(e?404:200,{'content-type':'text/html; charset=utf-8'});r.end(e?'not found':d)})}).listen(8767)"],
+      "port": 8767
+    }
+  ]
+}

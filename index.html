@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RSIA Pasutri Bogor – Prototipe Sistem Layanan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f7;--card:#fff;--ink:#102a30;--mut:#5a6f75;--line:#e2e9eb;--pri:#0e8a83;--pri-d:#0a6b66;--pri-s:#e5f4f3;--pink:#e0457b;--pink-d:#c0336a;--pink-s:#fdecf3;--ok:#16794a;--ok-s:#e2f4ea;--warn:#a96a0b;--warn-s:#fdf1d8;--bad:#b42318;--bad-s:#fdebe9;--blue:#1f56a5;--blue-s:#e6eefa;--r:14px;--sh:0 1px 2px rgba(16,42,48,.06),0 6px 20px rgba(16,42,48,.05)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'Plus Jakarta Sans',system-ui,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1{font-size:26px;line-height:1.2;margin:0;letter-spacing:-.01em;font-weight:800}
+h2{font-size:17px;margin:0;font-weight:700}
+h3{font-size:15px;margin:0;font-weight:700}
+p{margin:0}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+@media(max-width:600px){.container{padding:0 16px}h1{font-size:22px}}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* demo strip */
+.demo{background:#0d2227;color:#cfe3e1;font-size:12.5px}
+.demo .container{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;flex-wrap:wrap;padding-top:6px;padding-bottom:6px}
+.demo b{color:#fff;font-weight:700}
+.seg{display:inline-flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;color:#cfe3e1;padding:6px 14px;border-radius:8px;font-weight:600;font-size:12.5px}
+.seg button.on{background:#fff;color:var(--pri-d)}
+@media(max-width:600px){.demo .container>span{display:none}.seg{width:100%}.seg button{flex:1;padding:7px 4px}}
+
+/* header */
+.site{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.site .container{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:800;font-size:16px;line-height:1.15;white-space:nowrap}
+.logo i{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--pri),#13a89f);color:#fff;display:grid;place-items:center}
+.logo small{display:block;font-weight:500;font-size:11.5px;color:var(--mut)}
+.topnav{display:flex;gap:2px;flex:1}
+.topnav button{border:0;background:none;padding:9px 13px;border-radius:10px;font-weight:600;color:var(--mut);font-size:14px;white-space:nowrap}
+@media(max-width:1100px){.site .container{gap:16px}.topnav button{padding:9px 9px;font-size:13px}.logo small{display:none}}
+.topnav button:hover{background:var(--bg);color:var(--ink)}
+.topnav button.on{background:var(--pri-s);color:var(--pri-d)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.who{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mut)}
+.who b{display:block;color:var(--ink);font-size:13.5px;line-height:1.2}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--pri-s);color:var(--pri-d);flex:none}
+@media(max-width:900px){.topnav{display:none}.site .container{height:60px}}
+
+/* buttons / form */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--pri);background:var(--pri);color:#fff;padding:10px 18px;border-radius:11px;font-weight:700;font-size:14px;transition:.15s;white-space:nowrap}
+.btn:hover{background:var(--pri-d);border-color:var(--pri-d)}
+.btn.ghost{background:#fff;color:var(--pri-d);border-color:var(--line)}
+.btn.ghost:hover{background:var(--pri-s);border-color:var(--pri)}
+.btn.danger{background:#fff;color:var(--bad);border-color:#f2c4c0}
+.btn.danger:hover{background:var(--bad-s)}
+.btn.pink{background:var(--pink);border-color:var(--pink)}.btn.pink:hover{background:var(--pink-d);border-color:var(--pink-d)}
+.btn.sm{padding:6px 12px;font-size:12.5px;border-radius:9px}
+.btn.lg{padding:13px 24px;font-size:15px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.block{width:100%}
+.field{margin-bottom:14px}
+.field label,.lbl{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink)}
+input[type=text],input[type=tel],input[type=date],input:not([type]),select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;background:#fff;transition:.15s;min-height:44px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--pri);box-shadow:0 0 0 4px var(--pri-s)}
+input.bad,select.bad{border-color:var(--bad)}
+.err{color:var(--bad);font-size:12.5px;margin-top:5px;font-weight:500}
+.hint{color:var(--mut);font-size:12.5px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:600px){.fgrid{grid-template-columns:1fr}}
+.segc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.segc button{border:1.5px solid var(--line);background:#fff;padding:11px;border-radius:11px;font-weight:600}
+.segc button.on{border-color:var(--pri);background:var(--pri-s);color:var(--pri-d)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mut);cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--pri);flex:none}
+
+/* layout pieces */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--sh)}
+.card.flat{box-shadow:none}
+.card.pad0{padding:0;overflow:hidden}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.ch .hint{margin-top:2px}
+.page{padding:32px 0 72px}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.pagehead p{color:var(--mut);margin-top:6px;max-width:640px}
+.grid{display:grid;gap:20px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1180px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}.grid{gap:14px}.card{padding:18px}.page{padding:22px 0 90px}}
+.stack{display:grid;gap:20px;align-content:start}
+.split{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:1000px){.split{grid-template-columns:1fr}}
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);gap:32px;align-items:start}
+.side{position:sticky;top:92px;padding-top:32px}
+.side .lbl2{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 10px 12px}
+.side button{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:11px 12px;border-radius:11px;font-weight:600;color:var(--mut);text-align:left;margin-bottom:2px}
+.side button:hover{background:#fff;color:var(--ink)}
+.side button.on{background:#fff;color:var(--pri-d);box-shadow:var(--sh)}
+.side button.on svg{color:var(--pri)}
+@media(max-width:900px){.shell{grid-template-columns:minmax(0,1fr);gap:0}.side{display:none}}
+.bottom{display:none}
+@media(max-width:900px){.bottom{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:40;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.bottom button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--mut);padding:6px 2px;border-radius:10px;min-width:0}
+.bottom button.on{color:var(--pri-d)}.bottom button.on svg{color:var(--pri)}}
+
+/* chips, badges */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:#fff;padding:7px 14px;border-radius:99px;font-weight:600;font-size:13px;color:var(--mut)}
+.chip:hover{border-color:var(--pri);color:var(--pri-d)}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;background:var(--pri-s);color:var(--pri-d);white-space:nowrap}
+.badge.ok{background:var(--ok-s);color:var(--ok)}.badge.warn{background:var(--warn-s);color:var(--warn)}.badge.bad{background:var(--bad-s);color:var(--bad)}.badge.blue{background:var(--blue-s);color:var(--blue)}.badge.gray{background:var(--bg);color:var(--mut)}.badge.pink{background:var(--pink-s);color:var(--pink-d)}
+.qno{display:inline-block;min-width:54px;text-align:center;padding:4px 8px;border-radius:8px;background:var(--ink);color:#fff;font-weight:800;font-size:13px;letter-spacing:.02em}
+
+/* hero */
+.hero{background:linear-gradient(120deg,#0b6e69 0%,#0e8a83 55%,#17a79d 100%);border-radius:22px;color:#fff;padding:40px;display:grid;grid-template-columns:1.25fr 1fr;gap:32px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero h1{font-size:34px;color:#fff;margin-bottom:12px}
+.hero p{opacity:.9;max-width:480px}
+.search{display:flex;background:#fff;border-radius:14px;padding:6px;margin-top:22px;max-width:520px;position:relative;z-index:1}
+.search input{border:0;box-shadow:none!important;min-height:44px;flex:1;color:var(--ink)}
+.hero .acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1}
+.hero .btn.ghost{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)}
+.hero .btn.ghost:hover{background:rgba(255,255,255,.24)}
+.status{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:22px;position:relative;z-index:1;align-self:center}
+.status h3{color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.status .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.18);font-size:14px}
+.status .row b{font-size:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:#7dffb5;box-shadow:0 0 0 4px rgba(125,255,181,.25)}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:26px;border-radius:18px}.hero h1{font-size:26px}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+@media(max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:left;box-shadow:var(--sh);transition:.15s}
+.tile:hover{border-color:var(--pri);transform:translateY(-2px)}
+.tile .ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--pri-s);color:var(--pri-d);flex:none}
+.tile b{display:block;font-size:14px;line-height:1.25}.tile small{color:var(--mut);font-size:12px}
+.sec{margin-top:36px}
+.sec>.ch{margin-bottom:16px}
+.link{border:0;background:none;color:var(--pri-d);font-weight:700;font-size:13.5px;display:inline-flex;gap:6px;align-items:center;padding:0}
+
+/* poli tiles */
+.polis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.poli{background:#fff;border:1.5px solid var(--line);border-radius:var(--r);padding:18px 12px;text-align:center;transition:.15s;display:block;width:100%}
+.poli:hover{border-color:var(--pri);box-shadow:var(--sh)}
+.poli.on{border-color:var(--pri);background:var(--pri-s)}
+.poli .pc{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:26px}
+.poli b{display:block;font-size:13.5px;line-height:1.3}.poli small{color:var(--mut);font-size:12px}
+
+/* doctor rows */
+.dcard{display:flex;gap:14px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px;width:100%;text-align:left;transition:.15s}
+button.dcard:hover{border-color:var(--pri)}
+.dcard.on{border-color:var(--pri);background:var(--pri-s)}
+.dcard .av{width:48px;height:48px;font-size:15px}
+.dcard .t{flex:1;min-width:0}.dcard b{display:block;line-height:1.3}.dcard small{color:var(--mut);font-size:12.5px}
+.days{display:flex;gap:4px;margin-top:8px}
+.days span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--bg);color:#a3b2b6}
+.days span.y{background:var(--pri);color:#fff}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.dgrid .card{padding:18px}
+.dgrid .top{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+
+/* stepper */
+.stepper{display:flex;margin-bottom:24px}
+.stepper .st{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;font-size:12.5px;font-weight:600;color:var(--mut);text-align:center}
+.stepper .st::before{content:"";position:absolute;top:15px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0}
+.stepper .st:first-child::before{display:none}
+.stepper .st.done::before,.stepper .st.on::before{background:var(--pri)}
+.stepper .c{width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;z-index:1;font-weight:700;font-size:13px}
+.stepper .st.on .c{background:var(--pri);border-color:var(--pri);color:#fff;box-shadow:0 0 0 5px var(--pri-s)}
+.stepper .st.done .c{background:var(--pri);border-color:var(--pri);color:#fff}
+.stepper .st.on,.stepper .st.done{color:var(--ink)}
+@media(max-width:600px){.stepper .st span{display:none}.stepper .st.on span{display:block;position:absolute;top:40px;white-space:nowrap}.stepper{margin-bottom:40px}}
+.book{display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+@media(max-width:1000px){.book{grid-template-columns:1fr}}
+.sum{position:sticky;top:92px}
+.sum .row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.sum .row:last-of-type{border:0}
+.sum .row span{color:var(--mut)}.sum .row b{text-align:right;font-weight:600}
+.sum .empty{color:#a3b2b6;font-weight:500}
+.note{display:flex;gap:10px;background:var(--blue-s);color:var(--blue);border-radius:11px;padding:12px 14px;font-size:13px;margin-top:14px}
+.note.warn{background:var(--warn-s);color:var(--warn)}
+.dates{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px}
+.dchip{flex:none;width:74px;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:10px 0;text-align:center}
+.dchip small{display:block;color:var(--mut);font-size:12px;font-weight:600}.dchip b{display:block;font-size:22px;line-height:1.2}
+.dchip:hover{border-color:var(--pri)}.dchip.on{background:var(--pri);border-color:var(--pri);color:#fff}.dchip.on small{color:#d5f2ef}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.slot{border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:9px 4px;text-align:center;font-weight:700}
+.slot small{display:block;font-weight:500;font-size:11px;color:var(--mut)}
+.slot:hover:not([disabled]){border-color:var(--pri)}
+.slot.on{background:var(--pri);border-color:var(--pri);color:#fff}.slot.on small{color:#d5f2ef}
+.slot.full{background:var(--bg);color:#a3b2b6;cursor:not-allowed;text-decoration:line-through}
+.formsec{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--pri-d);margin:6px 0 14px;display:flex;align-items:center;gap:10px}
+.formsec::after{content:"";flex:1;height:1px;background:var(--line)}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+
+/* success */
+.okcard{max-width:620px;margin:0 auto;text-align:center}
+.okic{width:68px;height:68px;border-radius:50%;background:var(--ok-s);color:var(--ok);display:grid;place-items:center;margin:0 auto 16px}
+.okic svg{width:34px;height:34px;stroke-width:2.5}
+.kode{display:inline-block;font-size:30px;font-weight:800;letter-spacing:.08em;background:var(--bg);border:2px dashed var(--line);padding:6px 20px;border-radius:12px;margin:10px 0}
+.info3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;text-align:left}
+.info3>div{background:var(--bg);border-radius:12px;padding:12px 14px}.info3 small{color:var(--mut);display:block;font-size:12px}.info3 b{font-size:15px}
+@media(max-width:600px){.info3{grid-template-columns:1fr}}
+.wa{background:#dcf8c6;color:#0b1a0b;border-radius:14px 14px 14px 3px;padding:12px 14px;font-size:13.5px;white-space:pre-line;text-align:left;border:1px solid #c4e6a9;max-width:380px}
+.phone{background:#e9e1d6;border-radius:18px;padding:14px;max-width:420px;margin:0 auto;text-align:left}
+.phone .hd{font-size:12px;color:#5a5a4f;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-weight:600}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);text-align:left;padding:12px 16px;background:#f8fafb;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:#fafcfc}
+.tbl small{color:var(--mut);display:block;font-size:12.5px}
+.scroll{overflow-x:auto}
+
+/* kpi */
+.kpi{display:flex;gap:14px;align-items:flex-start}
+.kpi .ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
+.kpi b{font-size:28px;line-height:1.1;font-weight:800;display:block}
+.kpi span{color:var(--mut);font-size:13px;display:block}
+.kpi em{font-style:normal;font-size:12px;font-weight:700;display:block;margin-top:4px}
+.up{color:var(--ok)}.dn{color:var(--bad)}
+.ib.t1{background:var(--pri-s);color:var(--pri-d)}.ib.t2{background:var(--pink-s);color:var(--pink-d)}.ib.t3{background:var(--warn-s);color:var(--warn)}.ib.t4{background:var(--blue-s);color:var(--blue)}
+.bars .row{display:grid;grid-template-columns:130px 1fr 40px;gap:12px;align-items:center;margin:10px 0;font-size:13px}
+.bars .t{background:var(--bg);border-radius:8px;height:12px;overflow:hidden}.bars .f{height:100%;background:linear-gradient(90deg,var(--pri),#2bb5ab);border-radius:8px}
+.bars .row b{text-align:right}
+.cols{display:flex;align-items:flex-end;gap:8px;height:190px;padding-top:8px}
+.cols>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--mut);gap:4px}
+.cols i{display:block;width:100%;max-width:44px;background:linear-gradient(180deg,#2bb5ab,var(--pri));border-radius:7px 7px 0 0;min-height:3px}
+
+/* now card */
+.now{background:linear-gradient(140deg,#0b6e69,#0e8a83);color:#fff;border-radius:var(--r);padding:24px;text-align:center;box-shadow:var(--sh)}
+.now small{opacity:.85;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px}
+.now b{display:block;font-size:64px;line-height:1.05;font-weight:800;margin:6px 0 4px}
+.now .who2{opacity:.92;font-size:14px;min-height:42px}
+
+/* TV board */
+.tv{background:#07191d;color:#fff;border-radius:20px;overflow:hidden;box-shadow:var(--sh)}
+.tvhead{display:flex;justify-content:space-between;align-items:center;padding:18px 26px;background:#0b2a30;border-bottom:1px solid #16414a;gap:16px;flex-wrap:wrap}
+.tvhead b{font-size:20px}.tvhead span{color:#9cc6c2}
+.tvhead .clk{font-size:26px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.tvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:#16414a}
+.tvp{background:#07191d;padding:20px 22px}
+.tvp .nm{display:flex;align-items:center;gap:10px;font-weight:700;color:#bfe3df;margin-bottom:10px}
+.tvp .num{font-size:68px;font-weight:800;line-height:1;color:#7dffd6;font-variant-numeric:tabular-nums}
+.tvp .num.idle{color:#3b6a68}
+.tvp .nx{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tvp .nx span{background:#123b42;color:#d9f2ef;padding:3px 11px;border-radius:8px;font-weight:700;font-size:14px}
+.tvp .ft{color:#6f9a97;font-size:12.5px;margin-top:12px}
+.tvtick{background:#0b2a30;color:#9cc6c2;padding:12px 26px;font-size:13.5px;border-top:1px solid #16414a}
+
+/* timeline */
+.tl{display:flex;margin:20px 0}
+.tl .s{flex:1;text-align:center;position:relative;font-size:12px;font-weight:600;color:var(--mut)}
+.tl .s::before{content:"";position:absolute;top:11px;left:-50%;width:100%;height:3px;background:var(--line)}
+.tl .s:first-child::before{display:none}
+.tl .s i{display:block;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--line);margin:0 auto 6px;position:relative;z-index:1}
+.tl .s.done i,.tl .s.cur i{background:var(--pri);border-color:var(--pri)}
+.tl .s.done::before,.tl .s.cur::before{background:var(--pri)}
+.tl .s.cur{color:var(--pri-d)}.tl .s.cur i{box-shadow:0 0 0 5px var(--pri-s)}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:10px 16px;font-size:14px;margin:0}
+.kv dt{color:var(--mut)}.kv dd{margin:0;font-weight:600}
+@media(max-width:600px){.kv{grid-template-columns:110px 1fr}}
+
+/* tickets */
+.tk{border-left:4px solid var(--line)}
+.tk.s-Baru{border-left-color:var(--blue)}.tk.s-Diproses{border-left-color:var(--warn)}.tk.s-Selesai{border-left-color:var(--ok)}
+.tk .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.tk p.msg{margin:10px 0}
+
+/* masalah */
+.prob{display:grid;grid-template-columns:1fr 36px 1fr;gap:0;align-items:stretch;margin-bottom:12px}
+.prob>div{padding:16px 18px;border-radius:var(--r);font-size:14px}
+.prob .a{background:var(--bad-s);border:1px solid #f6cdc9}.prob .b{background:var(--ok-s);border:1px solid #bfe3cd}
+.prob .mid{display:grid;place-items:center;color:var(--mut);padding:0}
+.prob small{display:block;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin-bottom:5px}
+.prob .a small{color:var(--bad)}.prob .b small{color:var(--ok)}
+@media(max-width:700px){.prob{grid-template-columns:1fr}.prob .mid{transform:rotate(90deg);height:28px}}
+
+/* per-dokter */
+.drgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:20px}
+.drs{min-width:0}
+.drs.late{border-color:#f0cf8a;background:#fffaf0}
+.drs .top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.nowmini{background:var(--pri-s);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:14px}
+.nowmini b{font-size:30px;font-weight:800;line-height:1;color:var(--pri-d);min-width:74px}
+.nowmini small{display:block;color:var(--pri-d);font-weight:700;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.nowmini span{font-size:12.5px;color:var(--mut)}
+.inline3{display:grid;grid-template-columns:2fr 3fr auto;gap:14px;align-items:end}
+@media(max-width:700px){.inline3{grid-template-columns:1fr}}
+.tvp .late{background:#4a3410;color:#ffd9a0;border-radius:8px;padding:6px 10px;font-size:12.5px;margin-top:10px;font-weight:600}
+.tvp .nx span.skp{background:#4a2a10;color:#ffb877}
+.tbl tr.skipped td{background:#fff8ec}
+.dl{display:grid;grid-template-columns:1fr auto auto;gap:6px 16px;font-size:13.5px;align-items:center}
+.dl .h{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700}
+/* misc */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;z-index:60;font-size:14px;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+@media(max-width:900px){.toast{bottom:84px}}
+.tag{font-size:11.5px;background:var(--warn-s);color:var(--warn);padding:2px 9px;border-radius:7px;font-weight:700}
+.swc{position:relative;display:inline-block;width:38px;height:22px}
+.swc input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.swc span{position:absolute;inset:0;background:#cfd9dc;border-radius:99px;transition:.15s}
+.swc span::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.swc input:checked+span{background:var(--pri)}.swc input:checked+span::after{left:19px}
+footer.foot{color:var(--mut);font-size:12.5px;text-align:center;padding:8px 16px 28px}
+@media(max-width:900px){footer.foot{padding-bottom:90px}}
+</style>
+</head>
+<body>
+<div class="demo"><div class="container"><span><b>PROTOTIPE DEMO</b> · semua data contoh</span><div class="seg" id="roles"></div></div></div>
+<header class="site"><div class="container" id="hdr"></div></header>
+<div id="root"></div>
+<nav class="bottom" id="bottom"></nav>
+<footer class="foot">Nama dokter &amp; kontak dari rsiapasutri.co.id (dibaca 22 Okt 2026). Jadwal, pasien, antrean, dan angka dashboard adalah <b>data contoh</b>.</footer>
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+/* ============ ICONS ============ */
+const IC={
+ home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M12 14v4M10 16h4"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+ doc:'<path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
+ tv:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+ msg:'<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ clip:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>',
+ sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+ inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+ chart:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+ alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/>',
+ phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+ check:'<path d="m5 12 5 5L20 7"/>',
+ arr:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+ target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
+ back:'<path d="M19 12H5M11 18l-6-6 6-6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>'
+};
+const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24"${s?` style="width:${s}px;height:${s}px"`:''}>${IC[n]}</svg>`;
+
+/* ============ DATA ============ */
+const POLI=[
+ {id:'OBG',nama:'Kebidanan & Kandungan',pre:'A',ic:'🤰',waktu:20,bg:'#fdecf3'},
+ {id:'ANK',nama:'Anak',pre:'B',ic:'🧒',waktu:20,bg:'#e6eefa'},
+ {id:'UMU',nama:'Dokter Umum',pre:'C',ic:'🩺',waktu:15,bg:'#e5f4f3'},
+ {id:'GIG',nama:'Gigi',pre:'D',ic:'🦷',waktu:30,bg:'#e3f3fb'},
+ {id:'PDL',nama:'Penyakit Dalam',pre:'E',ic:'🫀',waktu:20,bg:'#fdeee0'},
+ {id:'LAK',nama:'Laktasi',pre:'F',ic:'🍼',waktu:30,bg:'#f0e9fb'},
+ {id:'REH',nama:'Rehabilitasi Medik',pre:'G',ic:'🦾',waktu:30,bg:'#e6f5e8'}
+];
+// Nama & spesialisasi: halaman Dokter website (22 Okt 2026), gelar dinormalisasi. Jadwal = CONTOH.
+const DOK=[
+ {id:1,nama:'dr. Sukoco Prihantoro, Sp.OG',poli:'OBG',hari:[1,3,5],jam:['09:00','12:00']},
+ {id:2,nama:'dr. Ragam Pesona S, Sp.OG',poli:'OBG',hari:[2,4,6],jam:['10:00','13:00']},
+ {id:3,nama:'dr. Roy Megantara, Sp.OG',poli:'OBG',hari:[1,2,4],jam:['16:00','19:00']},
+ {id:4,nama:'dr. Ratna Eka Lestari, Sp.A',poli:'ANK',hari:[1,3,5],jam:['08:00','11:00']},
+ {id:5,nama:'dr. Handre Putra, Sp.A',poli:'ANK',hari:[2,4],jam:['15:00','18:00']},
+ {id:6,nama:'dr. Diki Mulyana, Sp.A, M.Kes',poli:'ANK',hari:[3,6],jam:['09:00','12:00']},
+ {id:7,nama:'dr. Tina Ramayanthi, Sp.A, M.Kes',poli:'ANK',hari:[1,4,5],jam:['16:00','19:00']},
+ {id:8,nama:'dr. Riera Maharani Ramadhina',poli:'UMU',hari:[1,2,3,4,5],jam:['08:00','14:00']},
+ {id:9,nama:'dr. Patricia Meilroviane Sudrajat',poli:'UMU',hari:[1,2,3,4,5,6],jam:['14:00','20:00']},
+ {id:10,nama:'dr. Solvia Yanuarita',poli:'UMU',hari:[2,4,6],jam:['08:00','14:00']},
+ {id:11,nama:'drg. Fatmasari Pangesti',poli:'GIG',hari:[1,3,5],jam:['09:00','13:00']},
+ {id:12,nama:'drg. Despriana Nur Intani',poli:'GIG',hari:[2,4,6],jam:['14:00','18:00']},
+ {id:13,nama:'dr. Ricky, Sp.PD',poli:'PDL',hari:[1,3,5],jam:['16:00','19:00']},
+ {id:14,nama:'dr. Nizzah Afina',poli:'LAK',hari:[2,5],jam:['10:00','13:00']},
+ {id:15,nama:'dr. Lindrawati Tjuantja, Sp.KFR',poli:'REH',hari:[2,4],jam:['09:00','12:00']}
+];
+const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const PENJ=['Umum','Asuransi','BPJS'];
+const KATK=['Antrean / waktu tunggu','Jadwal dokter tidak sesuai','Pendaftaran / booking','Biaya & penjamin (BPJS/asuransi)','Fasilitas & kebersihan','Sikap petugas','Lainnya'];
+const STAT_LABEL={Terjadwal:'blue',Hadir:'warn',Dipanggil:'pink',Dilayani:'warn',Dilewati:'bad',Selesai:'ok','Tidak hadir':'bad',Batal:'gray'};
+
+/* ============ UTIL ============ */
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+const pick=a=>a[Math.floor(rnd()*a.length)];
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const fmtD=s=>{const d=new Date(s+'T00:00');return HARI[d.getDay()]+', '+d.getDate()+' '+BLN[d.getMonth()]+' '+d.getFullYear()};
+const dok=id=>DOK.find(d=>d.id==id),poli=id=>POLI.find(p=>p.id==id);
+const slotsOf=d=>{const [a,b]=d.jam.map(t=>+t.slice(0,2)*60+ +t.slice(3));const st=poli(d.poli).waktu,o=[];for(let m=a;m<b;m+=st)o.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));return o};
+const CAP=2;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const code=()=>'PST-'+Math.random().toString(36).slice(2,6).toUpperCase()+ri(10,99);
+const NAMA=['Siti Aisyah','Dewi Lestari','Rina Marlina','Ani Suryani','Nurul Hidayah','Maya Sari','Intan Permata','Lia Kartika','Yuni Astuti','Fitri Handayani','Ratna Dewi','Bunga Citra','Tri Wahyuni','Putri Ayu','Ayu Ningsih','Budi Santoso','Andi Pratama','Rizky Fadillah','Ahmad Fauzi','Dian Novita'];
+const nik=()=>'3271'+String(ri(100000,999999))+String(ri(100000,999999));
+const initials=n=>n.replace(/^(dr\.|drg\.)\s*/,'').split(/[ ,]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const avatar=d=>`<span class="av" style="background:${poli(d.poli).bg}">${initials(d.nama)}</span>`;
+const dayStrip=d=>`<div class="days">${[1,2,3,4,5,6,0].map(x=>`<span class="${d.hari.includes(x)?'y':''}" title="${HARI[x]}">${HARI[x][0]}</span>`).join('')}</div>`;
+let toastT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2800)}
+
+/* ============ SEED ============ */
+const DB={bookings:[],tickets:[],wa:[],audit:[],delays:[],queueCounter:{}};
+function nextQ(p,date){const k=p+date;DB.queueCounter[k]=(DB.queueCounter[k]||0)+1;return poli(p).pre+'-'+String(DB.queueCounter[k]).padStart(3,'0')}
+function mkBooking(o){return Object.assign({id:code(),nama:pick(NAMA),nik:nik(),wa:'08'+ri(11,99)+ri(1000000,9999999),penjamin:pick(['Umum','Umum','BPJS','BPJS','Asuransi']),status:'Terjadwal',channel:pick(['Web','Web','WhatsApp','Telepon','Walk-in']),wait:null},o)}
+(function seedData(){
+  for(let d=14;d>=1;d--){const date=iso(addD(TODAY,-d));const n=ri(14,28)+(d%7==1?6:0);
+    for(let i=0;i<n;i++){const dk=pick(DOK);const noshow=rnd()<.13;
+      DB.bookings.push(mkBooking({date,time:pick(slotsOf(dk)),dokterId:dk.id,poli:dk.poli,status:noshow?'Tidak hadir':'Selesai',skips:noshow?2:(rnd()<.08?1:0),wait:noshow?null:(dk.poli=='OBG'?ri(55,125):ri(8,55)),queue:nextQ(dk.poli,date)}))}}
+  const date=iso(TODAY);const st=['Selesai','Selesai','Selesai','Dilayani','Dipanggil','Hadir','Hadir','Dilewati','Terjadwal','Terjadwal','Terjadwal','Terjadwal','Terjadwal'];
+  const pool=DOK.filter(x=>x.hari.includes(TODAY.getDay()));const use=pool.length?pool:DOK;
+  st.forEach((s,i)=>{const dk=use[i%use.length];DB.bookings.push(mkBooking({date,time:slotsOf(dk)[i%slotsOf(dk).length],dokterId:dk.id,poli:dk.poli,status:s,skips:s=='Dilewati'?1:0,wait:s=='Selesai'?ri(10,40):null,queue:nextQ(dk.poli,date)}))});
+  for(let d=1;d<=5;d++){const date=iso(addD(TODAY,d));for(let i=0;i<ri(4,9);i++){const dk=pick(DOK);if(!dk.hari.includes(new Date(date+'T00:00').getDay()))continue;
+    DB.bookings.push(mkBooking({date,time:pick(slotsOf(dk)),dokterId:dk.id,poli:dk.poli,queue:nextQ(dk.poli,date)}))}}
+  const T=[['Antrean / waktu tunggu','Menunggu poli anak lebih dari 1,5 jam padahal sudah booking jam 16.00.','Diproses',2],['Jadwal dokter tidak sesuai','Di Instagram tertulis dr. praktik Kamis, ternyata sedang tidak ada.','Baru',1],['Pendaftaran / booking','Sudah isi form booking tapi tidak ada konfirmasi apa pun.','Baru',1],['Biaya & penjamin (BPJS/asuransi)','Tidak jelas apakah BPJS bisa dipakai untuk poli gigi.','Diproses',4],['Fasilitas & kebersihan','Toilet area tunggu kurang bersih sore hari.','Selesai',6],['Sikap petugas','Petugas pendaftaran kurang ramah saat menjelaskan alur.','Selesai',9],['Pendaftaran / booking','Hari yang saya pilih "tidak tersedia", tidak tahu harus pilih apa.','Baru',0],['Antrean / waktu tunggu','Tidak tahu sudah nomor berapa, harus tanya berkali-kali ke loket.','Diproses',3]];
+  T.forEach((t,i)=>DB.tickets.push({id:'KLH-'+String(i+1).padStart(3,'0'),kat:t[0],pesan:t[1],nama:pick(NAMA),kontak:'08'+ri(11,99)+ri(1000000,9999999),status:t[2],umur:t[3],balasan:t[2]=='Selesai'?['Terima kasih masukannya, sudah kami tindaklanjuti dengan unit terkait.']:[]}));
+  DB.delays.push({date:iso(addD(TODAY,-2)),dokterId:3,min:30},{date:iso(addD(TODAY,-4)),dokterId:3,min:45},{date:iso(addD(TODAY,-5)),dokterId:1,min:20},{date:iso(addD(TODAY,-8)),dokterId:7,min:30},{date:iso(addD(TODAY,-10)),dokterId:3,min:60});
+})();
+
+/* ============ STATE ============ */
+const S={role:'pasien',tab:'beranda',book:{step:1},filterPoli:'all',jadPoli:'all',mgmtRange:7,q:'',stPoli:'all',cekId:'',cekRes:null,cekErr:null,keluh:null};
+const TABS={
+ pasien:[['beranda','Beranda','home','Beranda'],['booking','Booking Poliklinik','cal','Booking'],['cek','Cek Booking','search','Cek'],['dokter','Jadwal Dokter','doc','Dokter'],['layar','Layar Antrean','tv','Antrean'],['keluhan','Keluhan & Masukan','msg','Masukan']],
+ staf:[['antrean','Antrean Hari Ini','list','Antrean'],['bookmasuk','Daftar Booking','clip','Booking'],['jadwal','Kelola Jadwal','sliders','Jadwal'],['inbox','Inbox Keluhan','inbox','Keluhan'],['wa','Log WhatsApp','send','WA'],['audit','Jejak Aktivitas','clip','Jejak']],
+ manajemen:[['dash','Dashboard','chart','Dashboard'],['masalah','Masalah → Solusi','target','Solusi']]
+};
+const ROLE_LABEL={pasien:'Pasien',staf:'Staf Pendaftaran',manajemen:'Manajemen'};
+const DEF_TAB={pasien:'beranda',staf:'antrean',manajemen:'dash'};
+function setRole(r){S.role=r;S.tab=DEF_TAB[r];render()}
+function setTab(t){S.tab=t;render();scrollTo(0,0)}
+
+/* ============ BOOKING LOGIC ============ */
+const used=(dId,date,time)=>DB.bookings.filter(b=>b.dokterId==dId&&b.date==date&&b.time==time&&b.status!='Batal').length;
+function nowHM(){const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
+function dates(dk){const o=[];for(let i=0;i<14&&o.length<7;i++){const d=addD(TODAY,i);if(dk.hari.includes(d.getDay())&&!(i==0&&slotsOf(dk).every(t=>t<=nowHM())))o.push(iso(d))}return o}
+const aheadOf=b=>DB.bookings.filter(x=>x.date==b.date&&x.dokterId==b.dokterId&&x.id!=b.id&&x.time<=b.time&&['Terjadwal','Hadir','Dipanggil','Dilayani','Dilewati'].includes(x.status)).length;
+const estMin=b=>aheadOf(b)*poli(b.poli).waktu+(b.date==iso(TODAY)?(dok(b.dokterId).telat||0):0);
+function sendWA(to,text,type){DB.wa.unshift({t:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),to,text,type,st:'Terkirim'})}
+function validate(f){const e={};
+  if(!f.nama||f.nama.trim().length<3)e.nama='Nama lengkap wajib diisi.';
+  if(!/^\d{16}$/.test(f.nik||''))e.nik='NIK harus 16 digit angka.';
+  if(!f.lahir)e.lahir='Tanggal lahir wajib diisi.';
+  else if(new Date(f.lahir)>TODAY)e.lahir='Tanggal lahir tidak boleh di masa depan.';
+  if(!/^(08|\+62|62)\d{8,12}$/.test((f.wa||'').replace(/[\s-]/g,'')))e.wa='Nomor WhatsApp tidak valid (contoh 081234567890).';
+  if(f.penjamin=='BPJS'){if(!/^\d{13}$/.test(f.noBpjs||''))e.noBpjs='No. kartu BPJS 13 digit.';if(!f.rujukan)e.rujukan='Nomor rujukan FKTP wajib untuk poli spesialis.'}
+  if(f.penjamin=='Asuransi'){if(!f.asuransi)e.asuransi='Nama asuransi wajib.';if(!f.polis)e.polis='Nomor polis/kartu wajib.'}
+  if(!f.pj)e.pj='Nama penanggung jawab wajib.';
+  if(!f.hub)e.hub='Hubungan dengan pasien wajib.';
+  if(!f.setuju)e.setuju='Persetujuan kebijakan privasi diperlukan.';
+  return e}
+function waText(b){const d=dok(b.dokterId);return `RSIA Pasutri Bogor\nHalo ${b.nama.split(' ')[0]}, booking Anda terkonfirmasi ✅\n\nKode: ${b.id}\nNo. antrean: ${b.queue}\nPoli: ${poli(b.poli).nama}\nDokter: ${d.nama}\nJadwal: ${fmtD(b.date)}, ${b.time}\nPenjamin: ${b.penjamin}\nEstimasi dilayani: ±${estMin(b)} menit dari jam booking\n\nDatang 15 menit sebelumnya & bawa KTP${b.penjamin=='BPJS'?', kartu BPJS & rujukan':''}.\nUbah/batalkan: balas UBAH atau BATAL.`}
+function todayQ(){return DB.bookings.filter(b=>b.date==iso(TODAY)&&b.status!='Batal').sort((a,b)=>a.time.localeCompare(b.time))}
+function logA(aksi,detail){DB.audit.unshift({t:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),who:'Staf Pendaftaran',aksi,detail})}
+const telatList=()=>DOK.filter(d=>d.telat>0);
+const dokQueue=id=>todayQ().filter(b=>b.dokterId==id);
+const byOrder=(a,b)=>a.time.localeCompare(b.time)||a.queue.localeCompare(b.queue);
+const nextFor=id=>dokQueue(id).filter(b=>b.status=='Hadir').sort(byOrder)[0];
+const busyFor=id=>dokQueue(id).find(b=>['Dipanggil','Dilayani'].includes(b.status));
+function callDok(id){const busy=busyFor(id);if(busy)return toast('Masih ada pasien '+busy.queue+' ('+busy.status+'). Selesaikan atau lewati dulu.');
+  const n=nextFor(id);if(!n)return toast('Belum ada pasien yang check-in untuk dokter ini.');setStatus(n.id,'Dipanggil')}
+function callRow(id){const b=DB.bookings.find(x=>x.id==id);const busy=busyFor(b.dokterId);if(busy)return toast('Dokter ini masih melayani '+busy.queue+'. Selesaikan atau lewati dulu.');
+  const n=nextFor(b.dokterId);
+  if(n&&n.id!=b.id){const why=prompt('Pasien ini bukan urutan berikutnya ('+n.queue+' · jam '+n.time+'). Alasan memanggil di luar urutan:');if(!why||!why.trim())return toast('Dibatalkan: alasan wajib diisi.');logA('Panggil di luar urutan',b.queue+' mendahului '+n.queue+'. Alasan: '+why.trim())}
+  setStatus(id,'Dipanggil')}
+function skipPatient(id){const b=DB.bookings.find(x=>x.id==id);b.skips=(b.skips||0)+1;
+  if(b.skips>=2){logA('Dilewati 2x, dianggap tidak hadir',b.queue+' · '+b.nama);return setStatus(id,'Tidak hadir')}
+  b.status='Dilewati';sendWA(b.nama,`Nomor ${b.queue} dilewati karena tidak ada di ruang tunggu. Segera lapor ke loket agar dipanggil ulang (sisa ${2-b.skips} kesempatan).`,'Dilewati');
+  logA('Dilewati',b.queue+' · '+b.nama+' (ke-'+b.skips+')');toast('Nomor '+b.queue+' dilewati. Pasien diberi tahu lewat WhatsApp.');render()}
+function setTelat(id,min){const d=dok(id);d.telat=min;const aff=dokQueue(id).filter(b=>['Terjadwal','Hadir','Dilewati'].includes(b.status));
+  if(min>0){aff.forEach(b=>sendWA(b.nama,`${d.nama} terlambat ±${min} menit. Estimasi dilayani bergeser. Anda tidak perlu datang lebih awal.`,'Dokter terlambat'));
+    DB.delays=DB.delays.filter(x=>!(x.date==iso(TODAY)&&x.dokterId==id));DB.delays.push({date:iso(TODAY),dokterId:id,min});
+    logA('Dokter terlambat',d.nama+' ±'+min+' menit · '+aff.length+' pasien diberi tahu');toast(aff.length+' pasien diberi tahu: dokter terlambat ±'+min+' menit.')}
+  else{aff.forEach(b=>sendWA(b.nama,`${d.nama} sudah hadir, praktik dimulai.`,'Dokter hadir'));DB.delays=DB.delays.filter(x=>!(x.date==iso(TODAY)&&x.dokterId==id));logA('Dokter hadir',d.nama);toast('Status terlambat dihapus.')}
+  render()}
+function cekNotes(b){let h='';const d=dok(b.dokterId);
+  if(b.status=='Dilewati')h+=`<div class="note warn" style="margin:0 0 16px">${ic('alert')}<span>Nomor Anda dilewati karena tidak ada saat dipanggil. Segera lapor ke loket pendaftaran agar dipanggil ulang (sisa 1 kesempatan).</span></div>`;
+  if(['Terjadwal','Hadir'].includes(b.status)&&b.date==iso(TODAY)&&d.telat)h+=`<div class="note warn" style="margin:0 0 16px">${ic('clock')}<span>Dokter terlambat ±${d.telat} menit hari ini. Estimasi dilayani sudah disesuaikan. Anda tidak perlu datang lebih awal.</span></div>`;
+  return h}
+function telatCard(){const m={};DB.delays.forEach(x=>m[x.date+'-'+x.dokterId]=x);const per={};Object.values(m).forEach(x=>(per[x.dokterId]=per[x.dokterId]||[]).push(x.min));
+  const rows=Object.entries(per).sort((a,b)=>b[1].length-a[1].length);const sk=DB.bookings.filter(b=>b.skips>0).length;
+  return `<div class="dl"><span class="h">Dokter</span><span class="h">Kali</span><span class="h">Rata-rata</span>${rows.map(([id,a])=>`<span>${esc(dok(id).nama)}</span><b>${a.length}×</b><span>${Math.round(a.reduce((x,y)=>x+y,0)/a.length)} mnt</span>`).join('')||'<span>Belum ada</span>'}</div><p class="hint" style="margin-top:12px">${sk} pasien pernah dilewati (14 hari + hari ini). Data contoh.</p>`}
+
+/* ============ SHELL ============ */
+function render(){
+  document.getElementById('roles').innerHTML=Object.keys(ROLE_LABEL).map(r=>`<button class="${S.role==r?'on':''}" data-act="role" data-v="${r}">${ROLE_LABEL[r]}</button>`).join('');
+  const tabs=TABS[S.role];
+  const logo=`<div class="logo"><i>${ic('heart',20)}</i><div>RSIA Pasutri Bogor<small>${S.role=='pasien'?'Ibu · Anak · Keluarga':'Sistem Layanan Internal'}</small></div></div>`;
+  document.getElementById('hdr').innerHTML=S.role=='pasien'
+    ?`${logo}<div class="topnav">${tabs.map(([k,l])=>`<button class="${S.tab==k?'on':''}" data-act="tab" data-v="${k}">${l.replace(' Poliklinik','').replace(' & Masukan','')}</button>`).join('')}</div><div class="hdr-right"><button class="btn pink sm" data-act="emg">${ic('phone',16)} IGD 24 Jam</button></div>`
+    :`${logo}<div class="hdr-right"><div class="who"><div style="text-align:right"><b>${ROLE_LABEL[S.role]}</b>Demo pengguna</div><span class="av">${S.role=='staf'?'SP':'MJ'}</span></div></div>`;
+  document.getElementById('bottom').innerHTML=tabs.map(([k,,i,s])=>`<button class="${S.tab==k?'on':''}" data-act="tab" data-v="${k}">${ic(i,22)}<span>${s}</span></button>`).join('');
+  const V={layar,beranda,booking,cek,dokter:dokterView,keluhan,antrean,bookmasuk,jadwal,inbox,wa:waLog,audit:auditView,dash,masalah};
+  const body=V[S.tab]();
+  document.getElementById('root').innerHTML=S.role=='pasien'
+    ?`<main class="page"><div class="container">${body}</div></main>`
+    :`<main><div class="container"><div class="shell"><aside class="side"><div class="lbl2">Menu</div>${tabs.map(([k,l,i])=>`<button class="${S.tab==k?'on':''}" data-act="tab" data-v="${k}">${ic(i)} ${l}</button>`).join('')}</aside><div class="page">${body}</div></div></div></main>`;
+}
+const head=(t,p,r='')=>`<div class="pagehead"><div><h1>${t}</h1>${p?`<p>${p}</p>`:''}</div>${r}</div>`;
+
+/* ---- PASIEN: beranda ---- */
+function beranda(){
+  const pool=DOK.filter(d=>d.hari.includes(TODAY.getDay()));const q=todayQ();
+  const waitList=q.filter(b=>['Hadir','Terjadwal'].includes(b.status)).length;
+  return `<section class="hero"><div><span class="badge" style="background:rgba(255,255,255,.18);color:#fff">Booking online · tanpa antre di loket</span><h1 style="margin-top:14px">Daftar ke dokter dari rumah, datang sesuai giliran</h1><p>Pilih poli, dokter, dan jam. Kode booking dan nomor antrean langsung dikirim ke WhatsApp Anda.</p>
+   <div class="search"><input id="hs" placeholder="Cari dokter atau poli, mis. Kandungan" aria-label="Cari dokter atau poli"><button class="btn" data-act="dosearch">Cari</button></div>
+   <div class="acts"><button class="btn ghost" data-act="tab" data-v="booking">${ic('cal',16)} Booking sekarang</button><button class="btn ghost" data-act="tab" data-v="cek">${ic('search',16)} Cek booking saya</button></div></div>
+   <div class="status"><h3><span class="dot"></span> Layanan hari ini</h3>
+     <div class="row"><span>Dokter praktik</span><b>${pool.length}</b></div>
+     <div class="row"><span>Pasien menunggu</span><b>${waitList}</b></div>
+     <div class="row"><span>IGD &amp; persalinan</span><b>24 jam</b></div>${telatList().length?`<div class="row"><span>Dokter terlambat</span><b style="color:#ffd9a0">${telatList().length}</b></div>`:''}</div></section>
+  <div class="tiles">
+   <button class="tile" data-act="tab" data-v="booking"><span class="ib">${ic('cal',22)}</span><span><b>Booking Poliklinik</b><small>Pilih jadwal tersedia</small></span></button>
+   <button class="tile" data-act="tab" data-v="dokter"><span class="ib">${ic('doc',22)}</span><span><b>Jadwal Dokter</b><small>Hari &amp; jam praktik</small></span></button>
+   <button class="tile" data-act="tab" data-v="layar"><span class="ib">${ic('tv',22)}</span><span><b>Layar Antrean</b><small>Pantau nomor dipanggil</small></span></button>
+   <button class="tile" data-act="tab" data-v="keluhan"><span class="ib">${ic('msg',22)}</span><span><b>Keluhan &amp; Masukan</b><small>Lacak dengan nomor tiket</small></span></button></div>
+  <section class="sec"><div class="ch"><h2>Pilih poliklinik</h2></div><div class="polis">${POLI.map(p=>`<button class="poli" data-act="bpoli0" data-v="${p.id}"><div class="pc" style="background:${p.bg}">${p.ic}</div><b>${p.nama}</b><small>${DOK.filter(d=>d.poli==p.id).length} dokter</small></button>`).join('')}</div></section>
+  <section class="sec"><div class="ch"><h2>Dokter praktik hari ini · ${HARI[TODAY.getDay()]}</h2><button class="link" data-act="tab" data-v="dokter">Semua dokter ${ic('arr',16)}</button></div><div class="dgrid">${(pool.length?pool:DOK).slice(0,6).map(dcardFull).join('')}</div></section>`}
+const dcardFull=d=>`<div class="card"><div class="top">${avatar(d)}<div><b>${esc(d.nama)}</b><div class="hint">${poli(d.poli).nama} · ${d.jam[0]}–${d.jam[1]}</div></div></div>${dayStrip(d)}<div style="margin-top:14px"><button class="btn sm" data-act="pickdok" data-v="${d.id}">Booking dokter ini</button></div></div>`;
+
+/* ---- PASIEN: booking wizard ---- */
+function booking(){const B=S.book;if(B.step==6)return success();
+  const names=['Poli','Dokter','Jadwal','Data diri','Konfirmasi'];
+  const steps=`<div class="stepper">${names.map((n,i)=>`<div class="st ${B.step==i+1?'on':B.step>i+1?'done':''}"><div class="c">${B.step>i+1?ic('check',16):i+1}</div><span>${n}</span></div>`).join('')}</div>`;
+  let h='';
+  if(B.step==1)h=`<div class="ch"><div><h2>Pilih poliklinik</h2><div class="hint">Langkah pertama: pilih layanan yang Anda butuhkan.</div></div></div><div class="polis">${POLI.map(p=>`<button class="poli ${B.poli==p.id?'on':''}" data-act="bpoli" data-v="${p.id}"><div class="pc" style="background:${p.bg}">${p.ic}</div><b>${p.nama}</b><small>${DOK.filter(d=>d.poli==p.id).length} dokter</small></button>`).join('')}</div>`;
+  if(B.step==2)h=`<div class="ch"><div><h2>Pilih dokter</h2><div class="hint">${poli(B.poli).nama}</div></div></div><div class="stack" style="gap:12px">${DOK.filter(d=>d.poli==B.poli).map(d=>`<button class="dcard ${B.dok==d.id?'on':''}" data-act="bdok" data-v="${d.id}">${avatar(d)}<div class="t"><b>${esc(d.nama)}</b><small>${d.jam[0]}–${d.jam[1]} WIB</small>${dayStrip(d)}</div>${ic('arr',18)}</button>`).join('')}</div>${back()}`;
+  if(B.step==3){const d=dok(B.dok);h=`<div class="ch"><div><h2>Pilih tanggal &amp; jam</h2><div class="hint">${esc(d.nama)}</div></div></div><div class="lbl">Tanggal tersedia</div><div class="dates">${dates(d).map(x=>{const dd=new Date(x+'T00:00');return `<button class="dchip ${B.date==x?'on':''}" data-act="bdate" data-v="${x}"><small>${HARI[dd.getDay()].slice(0,3)}</small><b>${dd.getDate()}</b><small>${BLN[dd.getMonth()]}</small></button>`}).join('')}</div>`;
+    if(B.date){h+=`<div class="lbl" style="margin-top:14px">Jam praktik (kuota ${CAP} pasien per slot)</div><div class="slots">${slotsOf(d).filter(t=>B.date!=iso(TODAY)||t>nowHM()).map(t=>{const left=CAP-used(d.id,B.date,t);return `<button class="slot ${left<=0?'full':''} ${B.time==t?'on':''}" ${left<=0?'disabled':''} data-act="btime" data-v="${t}">${t}<small>${left<=0?'penuh':'sisa '+left}</small></button>`}).join('')}</div>`}
+    else h+=`<div class="note">${ic('info')}<span>Pilih tanggal terlebih dahulu untuk melihat jam yang tersedia.</span></div>`;
+    h+=`<div class="actions"><button class="btn ghost" data-act="prev">${ic('back',16)} Kembali</button><button class="btn" data-act="next" ${B.time?'':'disabled'}>Lanjut ${ic('arr',16)}</button></div>`}
+  if(B.step==4)h=formDiri(B);
+  if(B.step==5){const f=B.f;h=`<div class="ch"><div><h2>Periksa kembali</h2><div class="hint">Pastikan data benar sebelum konfirmasi.</div></div></div><dl class="kv"><dt>Pasien</dt><dd>${esc(f.nama)}</dd><dt>NIK</dt><dd>${esc(f.nik)}</dd><dt>WhatsApp</dt><dd>${esc(f.wa)}</dd><dt>Penjamin</dt><dd>${f.penjamin}${f.penjamin=='BPJS'?' · '+esc(f.noBpjs):f.penjamin=='Asuransi'?' · '+esc(f.asuransi):''}</dd><dt>Penanggung jawab</dt><dd>${esc(f.pj)} (${esc(f.hub)})</dd></dl><div class="note">${ic('info')}<span>Konfirmasi dan nomor antrean akan dikirim ke WhatsApp ${esc(f.wa)}.</span></div><div class="actions"><button class="btn ghost" data-act="prev">${ic('back',16)} Ubah data</button><button class="btn lg" data-act="confirm">${ic('check',18)} Konfirmasi booking</button></div>`}
+  return `${head('Booking Poliklinik','Ikuti 5 langkah. Hanya jadwal dan jam yang benar-benar tersedia yang bisa dipilih.')}${steps}<div class="book"><div class="card">${h}</div>${summary(B)}</div>`}
+const back=()=>`<div class="actions"><button class="btn ghost" data-act="prev">${ic('back',16)} Kembali</button><span></span></div>`;
+function summary(B){const d=B.dok?dok(B.dok):null;const e=v=>v||'<span class="empty">Belum dipilih</span>';
+  let est='';if(B.dok&&B.date&&B.time){const t={dokterId:B.dok,date:B.date,time:B.time,poli:B.poli,id:'-'};est=`<div class="note">${ic('clock')}<span>Perkiraan <b>${aheadOf(t)} pasien</b> di depan Anda, sekitar ${estMin(t)} menit dari jam booking.${B.date==iso(TODAY)&&dok(B.dok).telat?` Dokter terlambat ±${dok(B.dok).telat} menit hari ini.`:''}</span></div>`}
+  return `<aside class="card sum"><h3 style="margin-bottom:6px">Ringkasan booking</h3><div class="row"><span>Poli</span><b>${e(B.poli&&poli(B.poli).nama)}</b></div><div class="row"><span>Dokter</span><b>${e(d&&esc(d.nama))}</b></div><div class="row"><span>Tanggal</span><b>${e(B.date&&fmtD(B.date))}</b></div><div class="row"><span>Jam</span><b>${e(B.time)}</b></div><div class="row"><span>Penjamin</span><b>${e(B.f&&B.f.penjamin)}</b></div>${est}</aside>`}
+function formDiri(B){const f=B.f||(B.f={penjamin:'Umum'}),e=B.err||{};
+  const fld=(k,l,t='text',ph='',ex='')=>`<div class="field"><label for="f_${k}">${l}</label><input id="f_${k}" class="${e[k]?'bad':''}" data-f="${k}" type="${t}" value="${esc(f[k]||'')}" placeholder="${ph}" ${ex}>${e[k]?`<div class="err">${e[k]}</div>`:''}</div>`;
+  return `<div class="ch"><div><h2>Data pasien</h2><div class="hint">Sesuai KTP / KIA / kartu identitas.</div></div></div>
+  <div class="fgrid">${fld('nama','Nama lengkap')}${fld('nik','NIK (16 digit)','text','3271xxxxxxxxxxxx','inputmode="numeric" maxlength="16"')}${fld('lahir','Tanggal lahir','date')}${fld('wa','No. WhatsApp','tel','081234567890')}</div>
+  <div class="formsec">Jenis pembayaran</div><div class="segc" style="margin-bottom:14px">${PENJ.map(p=>`<button class="${f.penjamin==p?'on':''}" data-act="penj" data-v="${p}">${p}</button>`).join('')}</div>
+  ${f.penjamin=='BPJS'?`<div class="fgrid">${fld('noBpjs','No. kartu BPJS (13 digit)','text','','inputmode="numeric" maxlength="13"')}${fld('rujukan','No. rujukan FKTP','text','mis. 0123R0010-…')}</div><div class="note warn" style="margin:0 0 14px">${ic('info')}<span>Poli spesialis dengan BPJS membutuhkan rujukan berjenjang yang masih berlaku.</span></div>`:''}
+  ${f.penjamin=='Asuransi'?`<div class="fgrid">${fld('asuransi','Nama asuransi','text','mis. Prudential')}${fld('polis','No. polis / kartu')}</div>`:''}
+  <div class="formsec">Penanggung jawab</div><div class="fgrid">${fld('pj','Nama penanggung jawab')}<div class="field"><label for="f_hub">Hubungan dengan pasien</label><select id="f_hub" class="${e.hub?'bad':''}" data-f="hub"><option value="">Pilih…</option>${['Diri sendiri','Suami','Istri','Orang tua','Anak','Saudara','Lainnya'].map(x=>`<option ${f.hub==x?'selected':''}>${x}</option>`).join('')}</select>${e.hub?`<div class="err">${e.hub}</div>`:''}</div></div>
+  <label class="check"><input type="checkbox" data-f="setuju" ${f.setuju?'checked':''}><span>Saya menyetujui data saya diproses untuk keperluan pendaftaran sesuai Kebijakan Privasi RSIA Pasutri.</span></label>${e.setuju?`<div class="err">${e.setuju}</div>`:''}
+  <div class="actions"><button class="btn ghost" data-act="prev">${ic('back',16)} Kembali</button><button class="btn" data-act="tovalid">Lanjut ke konfirmasi ${ic('arr',16)}</button></div>`}
+function success(){const b=S.book.done;return `<div class="okcard card" style="margin-top:8px"><div class="okic">${ic('check')}</div><h1>Booking berhasil</h1><p class="hint" style="margin-top:6px">Simpan kode ini untuk mengubah atau membatalkan jadwal.</p><div class="kode">${b.id}</div>
+  <div class="info3"><div><small>No. antrean</small><b>${b.queue}</b></div><div><small>Jadwal</small><b>${fmtD(b.date).split(',')[0]} · ${b.time}</b></div><div><small>Estimasi dilayani</small><b>±${estMin(b)} menit</b></div></div>
+  <p style="text-align:left;margin-bottom:10px"><b>${esc(dok(b.dokterId).nama)}</b> · ${poli(b.poli).nama} · ${fmtD(b.date)}</p>
+  <div class="phone"><div class="hd">${ic('msg',14)} Pesan WhatsApp yang diterima pasien (simulasi)</div><div class="wa">${esc(waText(b))}</div></div>
+  <div class="actions" style="justify-content:center"><button class="btn" data-act="gocek" data-v="${b.id}">Lihat status booking</button><button class="btn ghost" data-act="newbook">Booking lagi</button></div></div>`}
+
+/* ---- PASIEN: cek booking ---- */
+function cek(){const ex=DB.bookings.filter(b=>b.status=='Terjadwal'&&b.date>=iso(TODAY)).slice(0,3).map(b=>b.id);
+  let h=`${head('Cek / Ubah Booking','Lihat status, ubah jadwal, atau batalkan booking dengan kode booking.')}<div style="max-width:760px"><div class="card"><div class="fgrid"><div class="field" style="margin:0"><label for="ck">Kode booking</label><input id="ck" placeholder="PST-XXXX00" value="${esc(S.cekId)}"></div><div class="field" style="margin:0"><label for="cn">NIK (opsional di demo)</label><input id="cn" placeholder="16 digit"></div></div><div class="actions" style="border:0;margin-top:14px;padding:0"><span class="hint">Contoh kode: ${ex.map(x=>`<a href="#" data-act="gocek" data-v="${x}" style="color:var(--pri-d);font-weight:700">${x}</a>`).join(' · ')}</span><button class="btn" data-act="cari">${ic('search',16)} Cari booking</button></div></div>`;
+  if(S.cekErr)h+=`<div class="note warn" style="margin-top:16px">${ic('alert')}<span>${S.cekErr}</span></div>`;
+  if(S.cekRes){const b=S.cekRes,d=dok(b.dokterId),ahead=aheadOf(b);const order=['Terjadwal','Hadir','Dipanggil','Dilayani','Selesai'];const idx=order.indexOf(b.status=='Dilewati'?'Hadir':b.status);
+   h+=`<div class="card" style="margin-top:16px"><div class="ch"><div><div class="hint">Kode booking</div><h2 style="font-size:22px">${b.id}</h2></div><span class="badge ${STAT_LABEL[b.status]}">${b.status}</span></div>
+   ${idx>=0?`<div class="tl">${order.map((s,i)=>`<div class="s ${i<idx?'done':i==idx?'cur':''}"><i></i>${s}</div>`).join('')}</div>`:''}
+   ${cekNotes(b)}<div class="split" style="grid-template-columns:200px 1fr;gap:24px"><div class="now" style="padding:18px"><small>No. antrean</small><b style="font-size:48px">${b.queue}</b>${b.status=='Terjadwal'&&b.date==iso(TODAY)?`<div class="who2">${ahead} pasien di depan<br>±${estMin(b)} menit</div>`:'<div class="who2"></div>'}</div>
+   <dl class="kv"><dt>Pasien</dt><dd>${esc(b.nama)}</dd><dt>Poli</dt><dd>${poli(b.poli).nama}</dd><dt>Dokter</dt><dd>${esc(d.nama)}</dd><dt>Jadwal</dt><dd>${fmtD(b.date)}, ${b.time}</dd><dt>Penjamin</dt><dd>${b.penjamin}</dd></dl></div>
+   ${b.status=='Terjadwal'?`<div class="actions"><button class="btn danger" data-act="cancel" data-v="${b.id}">Batalkan booking</button><button class="btn" data-act="resched">Ubah jadwal</button></div>`:''}</div>`}
+  return h+'</div>'}
+
+/* ---- PASIEN: jadwal dokter ---- */
+function dokterList(){const f=S.filterPoli,q=S.q.toLowerCase().trim();
+  const l=DOK.filter(d=>(f=='all'||d.poli==f)&&(!q||(d.nama+' '+poli(d.poli).nama).toLowerCase().includes(q)));
+  return l.length?l.map(d=>`<div class="card"><div class="top">${avatar(d)}<div><b>${esc(d.nama)}</b><div class="hint">${poli(d.poli).ic} ${poli(d.poli).nama}</div></div></div>${dayStrip(d)}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><span class="hint" style="display:flex;gap:6px;align-items:center">${ic('clock',14)} ${d.jam[0]}–${d.jam[1]} WIB</span><button class="btn sm" data-act="pickdok" data-v="${d.id}">Booking</button></div></div>`).join(''):`<div class="card" style="grid-column:1/-1;text-align:center;color:var(--mut)">Tidak ada dokter yang cocok dengan pencarian.</div>`}
+function dokterView(){return `${head('Jadwal Dokter','Hari dan jam praktik tampil bersama tombol booking, tidak hanya foto dan nama.')}
+  <div class="card flat" style="margin-bottom:20px"><div class="field" style="margin-bottom:14px"><input id="dq" placeholder="Cari nama dokter atau poli…" value="${esc(S.q)}"></div><div class="chips"><button class="chip ${S.filterPoli=='all'?'on':''}" data-act="fpoli" data-v="all">Semua</button>${POLI.map(p=>`<button class="chip ${S.filterPoli==p.id?'on':''}" data-act="fpoli" data-v="${p.id}">${p.nama}</button>`).join('')}</div></div><div class="dgrid" id="dlist">${dokterList()}</div>`}
+
+/* ---- PASIEN: layar antrean ---- */
+function layar(){const q=todayQ();
+  const panels=POLI.map(p=>{const l=q.filter(b=>b.poli==p.id);if(!l.length)return '';const cur=l.find(b=>['Dipanggil','Dilayani'].includes(b.status));const w=l.filter(b=>['Hadir','Terjadwal'].includes(b.status));const sk=l.filter(b=>b.status=='Dilewati');
+   const lt=DOK.filter(d=>d.poli==p.id&&d.telat&&l.some(b=>b.dokterId==d.id));
+   return `<div class="tvp"><div class="nm"><span style="font-size:20px">${p.ic}</span>${p.nama}</div><div style="color:#6f9a97;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700">Sedang dilayani</div><div class="num ${cur?'':'idle'}">${cur?cur.queue:'—'}</div><div class="nx">${w.slice(0,3).map(b=>`<span>${b.queue}</span>`).join('')||'<span style="background:none;color:#6f9a97">Tidak ada antrean</span>'}</div>${sk.length?`<div class="nx" style="margin-top:8px"><span class="skp">Dilewati: ${sk.map(b=>b.queue).join(', ')}</span></div>`:''}${lt.map(d=>`<div class="late">Dokter terlambat ±${d.telat} menit · ${esc(d.nama.split(',')[0])}</div>`).join('')}<div class="ft">${w.length} menunggu · ${l.filter(b=>b.status=='Selesai').length} selesai</div></div>`}).join('');
+  const tl=telatList();
+  return `${head('Layar Antrean','Tampilan publik untuk TV ruang tunggu dan ponsel pasien. Booking online dan walk-in memakai satu urutan nomor, sehingga tidak ada antrean dobel.')}
+  <div class="tv"><div class="tvhead"><div><b>RSIA Pasutri Bogor</b> <span>· Antrean Poliklinik</span></div><div class="clk">${nowHM()}</div></div><div class="tvgrid">${panels}</div><div class="tvtick">${tl.length?'Pemberitahuan: '+tl.map(d=>d.nama.split(',')[0]+' terlambat ±'+d.telat+' menit').join(' · ')+'. ':''}Nomor yang dilewati dapat dipanggil ulang, mohon lapor ke loket. Gawat darurat dilayani 24 jam di IGD.</div></div>`}
+
+/* ---- PASIEN: keluhan ---- */
+function keluhan(){const k=S.keluh||{};const e=k.err||{};
+  return `${head('Keluhan & Masukan','Setiap masukan mendapat nomor tiket dan bisa dilacak statusnya.')}<div class="grid g2" style="align-items:start"><div class="card"><div class="ch"><h2>Kirim masukan</h2></div>
+  <div class="field"><label for="kk">Kategori</label><select id="kk">${KATK.map(x=>`<option>${x}</option>`).join('')}</select></div>
+  <div class="fgrid"><div class="field"><label for="kn">Nama</label><input id="kn" placeholder="Boleh anonim"></div><div class="field"><label for="kc">WhatsApp (agar dibalas)</label><input id="kc" placeholder="08…"></div></div>
+  <div class="field"><label for="km">Isi masukan</label><textarea id="km" rows="4" placeholder="Ceritakan: poli, tanggal, dan kendalanya." style="resize:vertical"></textarea>${e.m?`<div class="err">${e.m}</div>`:''}</div>
+  <button class="btn block" data-act="kirimk">${ic('send',16)} Kirim masukan</button>${k.ok?`<div class="note" style="background:var(--ok-s);color:var(--ok)">${ic('check')}<span>Terkirim. Nomor tiket Anda <b>${k.ok}</b>. Simpan untuk melacak.</span></div>`:''}</div>
+  <div class="card"><div class="ch"><h2>Lacak tiket</h2></div><div class="field"><label for="kt">Nomor tiket</label><input id="kt" placeholder="KLH-001" value="${esc(k.q||'')}"></div><button class="btn ghost block" data-act="lacak">${ic('search',16)} Lacak</button>
+  ${k.hit?`<div style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:center"><b>${k.hit.id}</b><span class="badge ${k.hit.status=='Selesai'?'ok':k.hit.status=='Baru'?'blue':'warn'}">${k.hit.status}</span></div><p style="margin:10px 0">${esc(k.hit.pesan)}</p>${k.hit.balasan.map(r=>`<div class="wa" style="margin-bottom:8px">${esc(r)}</div>`).join('')||'<p class="hint">Belum ada balasan.</p>'}</div>`:k.q?'<div class="note warn" style="margin-top:14px">'+ic('alert')+'<span>Tiket tidak ditemukan.</span></div>':''}</div></div>`}
+
+/* ---- STAF ---- */
+function drCard(d){const q=dokQueue(d.id),cur=busyFor(d.id),nx=nextFor(d.id),w=q.filter(b=>b.status=='Hadir').length,bl=q.filter(b=>b.status=='Terjadwal').length,sk=q.filter(b=>b.status=='Dilewati').length;
+  return `<div class="card drs ${d.telat?'late':''}"><div class="top">${avatar(d)}<div><b>${esc(d.nama)}</b><div class="hint">${poli(d.poli).nama} · ${d.jam[0]}–${d.jam[1]}</div></div></div>
+  ${d.telat?`<div class="note warn" style="margin:0 0 12px">${ic('clock')}<span>Terlambat ±${d.telat} menit. Pasien sudah diberi tahu.</span></div>`:''}
+  <div class="nowmini"><b>${cur?cur.queue:'—'}</b><div><small>${cur?cur.status:'Ruang periksa kosong'}</small><span>${cur?esc(cur.nama):'Siap memanggil'}</span></div></div>
+  <div class="hint" style="margin:10px 0 12px">Berikutnya: <b style="color:var(--ink)">${nx?nx.queue+' · '+esc(nx.nama)+' ('+nx.time+')':'belum ada yang check-in'}</b><br>${w} hadir menunggu · ${bl} belum datang${sk?` · <b class="dn">${sk} dilewati</b>`:''}</div>
+  <button class="btn block" data-act="calldok" data-v="${d.id}">${ic('send',16)} Panggil berikutnya</button>
+  <div class="chips" style="margin-top:12px;align-items:center"><span class="hint">Dokter terlambat:</span>${[15,30,60].map(m=>`<button class="chip ${d.telat==m?'on':''}" data-act="telat" data-id="${d.id}" data-v="${m}">${m}′</button>`).join('')}${d.telat?`<button class="chip" data-act="telat" data-id="${d.id}" data-v="0">Sudah hadir</button>`:''}</div></div>`}
+function antrean(){const all=todayQ(),q=S.stPoli=='all'?all:all.filter(b=>b.poli==S.stPoli);const cnt=s=>all.filter(b=>b.status==s).length;
+  const pool=DOK.filter(d=>d.hari.includes(TODAY.getDay()));const docs=DOK.filter(d=>dokQueue(d.id).length);
+  const kp=(i,t,v,l)=>`<div class="card kpi"><span class="ib ${t}">${ic(i,22)}</span><div><b>${v}</b><span>${l}</span></div></div>`;
+  return `${head('Antrean Hari Ini',fmtD(iso(TODAY))+' · satu layar untuk seluruh poli')}
+  <div class="grid g4" style="margin-bottom:28px">${kp('users','t1',all.length,'Total hari ini')}${kp('clock','t3',cnt('Hadir'),'Hadir, menunggu')}${kp('alert','t2',cnt('Dilewati'),'Dilewati, perlu dipanggil ulang')}${kp('check','t4',cnt('Selesai'),'Selesai')}</div>
+  <div class="ch"><div><h2>Ruang praktik</h2><div class="hint">Setiap dokter punya antrean sendiri, dipanggil berurutan menurut jam booking.</div></div></div>
+  <div class="drgrid" style="margin-bottom:20px">${docs.map(drCard).join('')}</div>
+  <div class="card" style="margin-bottom:20px"><div class="ch" style="margin-bottom:12px"><div><h3>Daftar walk-in</h3><div class="hint">Pasien datang langsung. Nomor memakai urutan yang sama dengan booking online.</div></div></div>
+   <div class="inline3"><div class="field" style="margin:0"><label for="wn">Nama pasien</label><input id="wn" placeholder="Nama lengkap"></div><div class="field" style="margin:0"><label for="wd">Dokter praktik hari ini</label><select id="wd">${(pool.length?pool:DOK).map(d=>`<option value="${d.id}">${esc(d.nama)} · ${poli(d.poli).nama}</option>`).join('')}</select></div><button class="btn" data-act="walkin">${ic('plus',16)} Beri nomor antrean</button></div></div>
+  <div class="card pad0"><div style="padding:16px 18px;border-bottom:1px solid var(--line)"><div class="chips"><button class="chip ${S.stPoli=='all'?'on':''}" data-act="stpoli" data-v="all">Semua</button>${POLI.filter(p=>all.some(b=>b.poli==p.id)).map(p=>`<button class="chip ${S.stPoli==p.id?'on':''}" data-act="stpoli" data-v="${p.id}">${p.nama}</button>`).join('')}</div></div>
+   <div class="scroll"><table class="tbl"><thead><tr><th>No</th><th>Jam</th><th>Pasien</th><th>Poli / dokter</th><th>Jaminan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${q.map(b=>`<tr class="${b.status=='Dilewati'?'skipped':''}"><td><span class="qno">${b.queue}</span></td><td>${b.time}</td><td><b>${esc(b.nama)}</b><small>${b.channel}${b.skips?' · dilewati '+b.skips+'×':''}</small></td><td>${poli(b.poli).nama}<small>${esc(dok(b.dokterId).nama)}</small></td><td>${b.penjamin}</td><td><span class="badge ${STAT_LABEL[b.status]}">${b.status}</span></td><td style="white-space:nowrap">${actions(b)}</td></tr>`).join('')}</tbody></table></div></div>`}
+function actions(b){const m={Terjadwal:[['setst','Hadir','Check-in','ghost'],['setst','Tidak hadir','No-show','danger']],Hadir:[['callrow','','Panggil','']],Dipanggil:[['setst','Dilayani','Mulai',''],['skip','','Tidak muncul','danger']],Dilayani:[['setst','Selesai','Selesai','']],Dilewati:[['setst','Dipanggil','Panggil ulang',''],['setst','Tidak hadir','No-show','danger']]};return (m[b.status]||[]).map(([a,s,l,c])=>`<button class="btn sm ${c}" data-act="${a}" data-id="${b.id}" data-v="${s}">${l}</button>`).join(' ')||'<span class="hint">—</span>'}
+function setStatus(id,s){const b=DB.bookings.find(x=>x.id==id);const old=b.status;b.status=s;
+  if(s=='Selesai')b.wait=ri(10,35);
+  if(s=='Hadir')logA('Check-in',b.queue+' · '+b.nama);
+  if(s=='Dipanggil'){const re=old=='Dilewati';sendWA(b.nama,`Nomor antrean ${b.queue} dipanggil${re?' ulang':''}. Silakan menuju ${poli(b.poli).nama}.`,re?'Panggil ulang':'Panggilan');logA(re?'Panggil ulang':'Panggil',b.queue+' · '+b.nama)}
+  if(s=='Tidak hadir'){sendWA(b.nama,`Anda tidak hadir pada jadwal ${b.time}. Balas JADWAL ULANG untuk booking baru.`,'No-show');if(old!='Dilewati'||b.skips<2)logA('Tidak hadir',b.queue+' · '+b.nama)}
+  render()}
+function bookmasuk(){const l=DB.bookings.filter(b=>b.date>=iso(TODAY)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  return `${head('Daftar Booking',`Booking dari web, WhatsApp, telepon, dan walk-in terkumpul di satu tabel. ${l.length} booking ke depan.`)}<div class="card pad0"><div class="scroll"><table class="tbl"><thead><tr><th>Kode</th><th>Tanggal</th><th>Jam</th><th>Pasien</th><th>Dokter</th><th>Jaminan</th><th>Kanal</th><th>Status</th></tr></thead><tbody>${l.slice(0,60).map(b=>`<tr><td><b>${b.id}</b></td><td>${fmtD(b.date).replace(/ 20\d\d$/,'')}</td><td>${b.time}</td><td>${esc(b.nama)}</td><td>${esc(dok(b.dokterId).nama)}<small>${poli(b.poli).nama}</small></td><td>${b.penjamin}</td><td>${b.channel}</td><td><span class="badge ${STAT_LABEL[b.status]}">${b.status}</span></td></tr>`).join('')}</tbody></table></div></div>`}
+function jadwal(){const f=S.jadPoli;return `${head('Kelola Jadwal Dokter','Satu sumber kebenaran: perubahan di sini langsung memengaruhi pilihan hari dan jam di form booking.')}
+  <div class="chips" style="margin-bottom:16px"><button class="chip ${f=='all'?'on':''}" data-act="jpoli" data-v="all">Semua</button>${POLI.map(p=>`<button class="chip ${f==p.id?'on':''}" data-act="jpoli" data-v="${p.id}">${p.nama}</button>`).join('')}</div>
+  <div class="card pad0"><div class="scroll"><table class="tbl"><thead><tr><th>Dokter</th>${[1,2,3,4,5,6,0].map(x=>`<th style="text-align:center">${HARI[x].slice(0,3)}</th>`).join('')}<th>Jam</th></tr></thead><tbody>${DOK.filter(d=>f=='all'||d.poli==f).map(d=>`<tr><td><b>${esc(d.nama)}</b><small>${poli(d.poli).nama}</small></td>${[1,2,3,4,5,6,0].map(x=>`<td style="text-align:center"><label class="swc"><input type="checkbox" data-act="togday" data-id="${d.id}" data-v="${x}" ${d.hari.includes(x)?'checked':''}><span></span></label></td>`).join('')}<td style="white-space:nowrap">${d.jam[0]}–${d.jam[1]}</td></tr>`).join('')}</tbody></table></div></div><p class="hint" style="margin-top:12px">Kuota: ${CAP} pasien per slot. Durasi slot mengikuti poli (Obgyn ${poli('OBG').waktu} menit).</p>`}
+function inbox(){const open=DB.tickets.filter(t=>t.status!='Selesai').length;return `${head('Inbox Keluhan',`${open} tiket terbuka · target respons 1×24 jam`)}<div class="stack">${DB.tickets.map(t=>`<div class="card tk s-${t.status}"><div class="top"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${t.id}</b><span class="badge gray">${t.kat}</span><span class="badge ${t.status=='Selesai'?'ok':t.status=='Baru'?'blue':'warn'}">${t.status}</span></div><span class="hint">${t.umur?t.umur+' hari lalu':'hari ini'}${t.umur>=2&&t.status!='Selesai'?' · <b class="dn">lewat SLA</b>':''}</span></div><p class="msg">${esc(t.pesan)}</p>${t.balasan.map(r=>`<div class="wa" style="margin-bottom:8px">${esc(r)}</div>`).join('')}<div style="display:flex;gap:8px;flex-wrap:wrap">${t.status=='Baru'?`<button class="btn sm ghost" data-act="tkt" data-id="${t.id}" data-v="Diproses">Ambil / proses</button>`:''}${t.status!='Selesai'?`<button class="btn sm ghost" data-act="reply" data-id="${t.id}">Balas</button><button class="btn sm" data-act="tkt" data-id="${t.id}" data-v="Selesai">Tandai selesai</button>`:''}</div></div>`).join('')}</div>`}
+function waLog(){return `${head('Log WhatsApp','Semua notifikasi otomatis tercatat (simulasi, belum terhubung ke WhatsApp Business API).')}${DB.wa.length?`<div class="card pad0"><div class="scroll"><table class="tbl"><thead><tr><th>Jam</th><th>Ke</th><th>Jenis</th><th>Pesan</th><th>Status</th></tr></thead><tbody>${DB.wa.map(w=>`<tr><td>${w.t}</td><td>${esc(w.to)}</td><td><span class="badge gray">${w.type}</span></td><td style="white-space:pre-line;max-width:440px">${esc(w.text)}</td><td><span class="badge ok">${w.st}</span></td></tr>`).join('')}</tbody></table></div></div>`:`<div class="card" style="text-align:center;color:var(--mut);padding:40px">Belum ada pesan. Buat booking sebagai Pasien atau panggil antrean sebagai Staf.</div>`}`}
+
+function auditView(){return `${head('Jejak Aktivitas','Setiap pemanggilan, pelewatan, panggilan di luar urutan, dan keterlambatan dokter tercatat. Dasar untuk menelusuri keluhan "nomor saya terlewat".')}${DB.audit.length?`<div class="card pad0"><div class="scroll"><table class="tbl"><thead><tr><th>Jam</th><th>Petugas</th><th>Aksi</th><th>Detail</th></tr></thead><tbody>${DB.audit.map(a=>`<tr><td>${a.t}</td><td>${a.who}</td><td><span class="badge ${/luar urutan|terlambat|Dilewati/.test(a.aksi)?'warn':'gray'}">${a.aksi}</span></td><td>${esc(a.detail)}</td></tr>`).join('')}</tbody></table></div></div>`:`<div class="card" style="text-align:center;color:var(--mut);padding:40px">Belum ada aktivitas. Coba check-in, panggil, atau lewati pasien di menu Antrean Hari Ini.</div>`}`}
+
+/* ---- MANAJEMEN ---- */
+function dash(){const R=S.mgmtRange,from=iso(addD(TODAY,-R+1));
+  const L=DB.bookings.filter(b=>b.date>=from&&b.date<=iso(TODAY)&&b.status!='Batal');
+  const done=L.filter(b=>b.status=='Selesai'),ns=L.filter(b=>b.status=='Tidak hadir');
+  const fin=done.length+ns.length;const nsr=fin?Math.round(ns.length/fin*100):0;
+  const wl=done.filter(b=>b.wait);const wait=wl.length?Math.round(wl.reduce((s,b)=>s+b.wait,0)/wl.length):0;
+  const open=DB.tickets.filter(t=>t.status!='Selesai').length,late=DB.tickets.filter(t=>t.status!='Selesai'&&t.umur>=2).length;
+  const by=(arr,f)=>{const m={};arr.forEach(x=>{const k=f(x);m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const bars=e=>{const mx=Math.max(...e.map(x=>x[1]),1);return `<div class="bars">${e.map(([k,v])=>`<div class="row"><span>${k}</span><div class="t"><div class="f" style="width:${v/mx*100}%"></div></div><b>${v}</b></div>`).join('')}</div>`};
+  const days=[];for(let i=R-1;i>=0;i--){const d=iso(addD(TODAY,-i));days.push([d,DB.bookings.filter(b=>b.date==d&&b.status!='Batal').length])}
+  const mx=Math.max(...days.map(x=>x[1]),1);
+  const ch=by(L,b=>b.channel);const web=(ch.find(c=>c[0]=='Web')||[0,0])[1];
+  const wp=Object.entries(wl.reduce((m,b)=>{const k=poli(b.poli).nama;(m[k]=m[k]||[]).push(b.wait);return m},{})).map(([k,a])=>[k,Math.round(a.reduce((x,y)=>x+y,0)/a.length)]).sort((a,b)=>b[1]-a[1]);
+  const kp=(i,t,v,l,d,c)=>`<div class="card kpi"><span class="ib ${t}">${ic(i,22)}</span><div><b>${v}</b><span>${l}</span><em class="${c}">${d}</em></div></div>`;
+  const card=(t,s,b)=>`<div class="card"><div class="ch"><div><h2>${t}</h2>${s?`<div class="hint">${s}</div>`:''}</div></div>${b}</div>`;
+  return `${head('Dashboard Manajemen',`Ringkasan layanan ${R} hari terakhir (data contoh)`,`<div class="chips">${[7,14].map(r=>`<button class="chip ${R==r?'on':''}" data-act="range" data-v="${r}">${r} hari</button>`).join('')}</div>`)}
+  <div class="grid g4">${kp('users','t1',L.length,'Kunjungan terjadwal','dari semua kanal','hint')}${kp('alert','t2',nsr+'%','Tingkat tidak hadir',nsr>10?'di atas target 10%':'sesuai target',nsr>10?'dn':'up')}${kp('clock','t3',wait+' mnt','Rata-rata waktu tunggu',wait>30?'di atas target 30 mnt':'sesuai target',wait>30?'dn':'up')}${kp('msg','t4',open,'Keluhan terbuka',late+' lewat SLA 24 jam',late?'dn':'up')}</div>
+  <div class="grid g2" style="margin-top:20px">
+   ${card('Tren booking harian','Jumlah booking per hari',`<div class="cols">${days.map(([d,n])=>`<div><span>${n}</span><i style="height:${n/mx*100}%"></i><span>${d.slice(8)}</span></div>`).join('')}</div>`)}
+   ${card('Waktu tunggu per poli','Rata-rata menit sampai dilayani',bars(wp)+`<p class="hint" style="margin-top:8px">Ulasan Google menyebut antre Obgyn ±2 jam; data contoh ini menirunya.</p>`)}
+   ${card('Kunjungan per poli','',bars(by(L,b=>poli(b.poli).nama)))}
+   ${card('Kanal pendaftaran','',bars(ch)+`<p class="hint" style="margin-top:8px">Booking online ${L.length?Math.round(web/L.length*100):0}% dari total. Target: kurangi beban loket dan telepon.</p>`)}
+   ${card('Penjamin','',bars(by(L,b=>b.penjamin)))}
+   ${card('Keluhan per kategori','',bars(by(DB.tickets,t=>t.kat)))}
+   ${card('Keterlambatan dokter','Penyebab antrean lama yang sebelumnya tidak tercatat',telatCard())}
+  </div>`}
+function masalah(){const P=[
+ ['Ulasan Google (473 ulasan, rating 4,1): sistem nomor pendaftaran error sehingga pendaftaran ditulis manual.','Nomor antrean dibuat sistem berurutan per poli per hari (tidak bisa dobel). Staf punya form walk-in sebagai cadangan, tetap dalam urutan yang sama.'],
+ ['Ulasan Google: antrean dobel (luar dan dalam) dan antre dokter kandungan hingga ±2 jam.','Satu urutan antrean untuk online + walk-in, Layar Antrean per poli, estimasi waktu tunggu di konfirmasi, dan dashboard waktu tunggu per poli.'],
+ ['Nomor terlewat: pasien dipanggil tapi tidak ada, lalu tidak jelas nasib nomornya. Tidak ada jejak siapa memanggil siapa.','Status Dilewati: pasien diberi tahu lewat WhatsApp dan boleh dipanggil ulang 1 kali, lalu dianggap tidak hadir. Panggilan di luar urutan wajib beralasan dan masuk Jejak Aktivitas.'],
+ ['Dokter datang terlambat, pasien menunggu di ruang tunggu tanpa kabar sehingga antrean terasa sangat lama.','Staf menandai keterlambatan 15/30/60 menit: semua pasien dokter itu diberi tahu lewat WhatsApp, estimasi bergeser, dan tampil di Layar Antrean.'],
+ ['Tombol "Booking Poliklinik" dan WhatsApp mengambang menjadi dua jalur terpisah. Pasien darurat dan pasien biasa tercampur.','Satu pintu masuk: booking terstruktur untuk jadwal, tombol Darurat terpisah. Data dari WhatsApp tetap masuk ke daftar booking yang sama.'],
+ ['Halaman Dokter hanya memuat foto, nama, dan spesialisasi. Jadwal praktik tidak ada.','Jadwal Dokter menampilkan hari, jam, dan tombol booking per dokter. Staf mengubah jadwal di satu tempat.'],
+ ['Form booking: hanya NIK yang wajib. Tidak ada validasi 16 digit, nomor HP, atau cegah duplikat.','Validasi per field, NIK 16 digit, WhatsApp, tanggal lahir, dan satu booking aktif per pasien-dokter-hari.'],
+ ['BPJS/Asuransi hanya berupa pilihan. Tidak ada no. kartu, nama asuransi, atau rujukan.','Field penjamin muncul sesuai pilihan: no. BPJS + rujukan, atau nama asuransi + no. polis.'],
+ ['Ada kolom "Nomor Antrian" tetapi tidak jelas kapan terisi. Tidak ada pesan sukses, estimasi, atau notifikasi.','Kode booking + nomor antrean + posisi antrean tampil seketika dan dikirim ke WhatsApp.'],
+ ['Tidak ada cara mengubah atau membatalkan booking. Hari "tidak tersedia" hanya muncul sebagai pesan error.','Cek Booking: ubah jadwal atau batalkan mandiri. Hari/jam yang tidak tersedia tidak bisa dipilih sama sekali.'],
+ ['Halaman Komentar memaksa login (dialihkan ke login.php), tanpa tiket, status, atau balasan. Tidak ada form kontak di halaman Kontak.','Keluhan berbentuk tiket: kategori, SLA 24 jam, balasan, status, dan bisa dilacak pasien.'],
+ ['Data tidak rapi: judul "RISA Pasutri", gelar "Sp.A"/"Sp. A.", terapi wicara tanpa nama, nomor kontak tersebar.','Master data dokter terpusat dengan format gelar baku dan nomor kontak resmi satu sumber.'],
+ ['Konten placeholder: modal "Judul Layanan", seksi Spesialis kosong, statistik pengunjung tetap 1.234/5.678.','Dashboard memakai data nyata dari transaksi, bukan angka statis.'],
+ ['Manajemen tidak punya gambaran no-show, waktu tunggu, atau keluhan karena semua data tersebar.','Dashboard KPI: no-show, waktu tunggu, kanal, penjamin, SLA keluhan.']];
+ return `${head('Masalah → Solusi','Temuan di website rsiapasutri.co.id (dibaca 22 Okt 2026) dan ulasan pasien di Google Maps, dipetakan ke fitur prototipe.','<span class="tag">Sumber: website RS &amp; ulasan Google Maps</span>')}${P.map(([a,b])=>`<div class="prob"><div class="a"><small>Masalah</small>${a}</div><div class="mid">${ic('arr',20)}</div><div class="b"><small>Di prototipe</small>${b}</div></div>`).join('')}`}
+
+/* ============ EVENTS ============ */
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-act]');if(!el||el.disabled||el.type=='checkbox')return;
+  const a=el.dataset.act,v=el.dataset.v,B=S.book;
+  if(el.tagName=='A')ev.preventDefault();
+  if(a=='role')return setRole(v);
+  if(a=='tab')return setTab(v);
+  if(a=='emg'){sendWA('IGD','Halo RSIA Pasutri, saya membutuhkan bantuan darurat!','Darurat');return toast('Demo: membuka WhatsApp IGD 0811-9418-500 dengan pesan terisi.')}
+  if(a=='dosearch'){S.q=document.getElementById('hs').value;S.filterPoli='all';return setTab('dokter')}
+  if(a=='bpoli0'){S.book={step:2,poli:v,f:S.book.f};return setTab('booking')}
+  if(a=='pickdok'){const d=dok(v);S.book={step:3,poli:d.poli,dok:d.id,f:S.book.f};return setTab('booking')}
+  if(a=='bpoli'){B.poli=v;B.dok=B.date=B.time=null;B.step=2}
+  if(a=='bdok'){B.dok=+v;B.date=B.time=null;B.step=3}
+  if(a=='bdate'){B.date=v;B.time=null}
+  if(a=='btime')B.time=v;
+  if(a=='next')B.step=4;
+  if(a=='prev'){if(B.step==4)collect();B.step=Math.max(1,B.step-1)}
+  if(a=='penj'){collect();B.f.penjamin=v;B.err=null}
+  if(a=='tovalid'){collect();B.err=validate(B.f);if(!Object.keys(B.err).length)B.step=5;else toast('Periksa isian yang bertanda merah.')}
+  if(a=='confirm'){const f=B.f;const dup=DB.bookings.find(b=>b.nik==f.nik&&b.dokterId==B.dok&&b.date==B.date&&b.status=='Terjadwal');
+    if(dup){toast('NIK ini sudah punya booking aktif dengan dokter & hari yang sama ('+dup.id+').');return}
+    if(CAP-used(B.dok,B.date,B.time)<=0){toast('Maaf, slot baru saja terisi. Pilih jam lain.');B.step=3;return render()}
+    const b=mkBooking({nama:f.nama,nik:f.nik,wa:f.wa,date:B.date,time:B.time,dokterId:B.dok,poli:B.poli,penjamin:f.penjamin,channel:'Web',queue:nextQ(B.poli,B.date)});
+    DB.bookings.push(b);sendWA(b.nama+' ('+b.wa+')',waText(b),'Konfirmasi');B.done=b;B.step=6}
+  if(a=='newbook')S.book={step:1};
+  if(a=='gocek'){S.cekId=v;S.cekErr=null;S.cekRes=DB.bookings.find(b=>b.id==v)||null;if(!S.cekRes)S.cekErr='Kode tidak ditemukan.';return setTab('cek')}
+  if(a=='cari'){const id=document.getElementById('ck').value.trim().toUpperCase();S.cekId=id;S.cekRes=DB.bookings.find(b=>b.id==id)||null;S.cekErr=S.cekRes?null:'Kode booking tidak ditemukan. Periksa kembali kode pada pesan WhatsApp Anda.'}
+  if(a=='cancel'){const b=DB.bookings.find(x=>x.id==v);b.status='Batal';sendWA(b.nama,`Booking ${b.id} dibatalkan sesuai permintaan. Slot dibuka kembali.`,'Pembatalan');toast('Booking dibatalkan.')}
+  if(a=='resched'){const b=S.cekRes;b.status='Batal';S.book={step:3,poli:b.poli,dok:b.dokterId};S.cekRes=null;toast('Pilih jadwal baru. Booking lama dibatalkan.');return setTab('booking')}
+  if(a=='fpoli')S.filterPoli=v;
+  if(a=='jpoli')S.jadPoli=v;
+  if(a=='stpoli')S.stPoli=v;
+  if(a=='kirimk'){const m=document.getElementById('km').value.trim();if(m.length<10){S.keluh={err:{m:'Mohon tuliskan minimal 10 karakter.'}};return render()}
+    const t={id:'KLH-'+String(DB.tickets.length+1).padStart(3,'0'),kat:document.getElementById('kk').value,pesan:m,nama:document.getElementById('kn').value||'Anonim',kontak:document.getElementById('kc').value,status:'Baru',umur:0,balasan:[]};DB.tickets.push(t);S.keluh={ok:t.id}}
+  if(a=='lacak'){const q=document.getElementById('kt').value.trim().toUpperCase();S.keluh={q,hit:DB.tickets.find(t=>t.id==q)}}
+  if(a=='calldok')return callDok(+v);
+  if(a=='callrow')return callRow(el.dataset.id);
+  if(a=='skip')return skipPatient(el.dataset.id);
+  if(a=='telat')return setTelat(+el.dataset.id,+v);
+  if(a=='walkin'){const n=document.getElementById('wn').value.trim();if(n.length<3)return toast('Isi nama pasien.');const dk=dok(document.getElementById('wd').value);const t=slotsOf(dk).filter(x=>x>=nowHM())[0]||slotsOf(dk).slice(-1)[0];const b=mkBooking({nama:n,date:iso(TODAY),time:t,dokterId:dk.id,poli:dk.poli,channel:'Walk-in',status:'Hadir',penjamin:'Umum',queue:nextQ(dk.poli,iso(TODAY))});DB.bookings.push(b);logA('Walk-in',n+' → '+b.queue);toast('Walk-in '+n+' → nomor '+b.queue)}
+  if(a=='setst')return setStatus(el.dataset.id,v);
+  if(a=='tkt'){const t=DB.tickets.find(x=>x.id==el.dataset.id);t.status=v;if(v=='Selesai'&&!t.balasan.length)t.balasan.push('Terima kasih atas masukannya. Kasus ditutup oleh tim layanan pelanggan.');toast('Tiket '+t.id+' → '+v)}
+  if(a=='reply'){const t=DB.tickets.find(x=>x.id==el.dataset.id);const r=prompt('Balasan untuk '+t.id+':');if(r){t.balasan.push(r);if(t.status=='Baru')t.status='Diproses';sendWA(t.nama+' ('+t.kontak+')',r,'Balasan keluhan')}}
+  if(a=='range')S.mgmtRange=+v;
+  render()});
+document.addEventListener('change',ev=>{const el=ev.target;
+  if(el.dataset.act=='togday'){const d=dok(el.dataset.id),x=+el.dataset.v;d.hari=el.checked?[...new Set([...d.hari,x])]:d.hari.filter(h=>h!=x);toast('Jadwal diperbarui. Form booking mengikuti.')}});
+document.addEventListener('input',ev=>{if(ev.target.id=='dq'){S.q=ev.target.value;document.getElementById('dlist').innerHTML=dokterList()}});
+document.addEventListener('keydown',ev=>{if(ev.key=='Enter'&&ev.target.id=='hs')document.querySelector('[data-act=dosearch]').click()});
+function collect(){const B=S.book;B.f=B.f||{};document.querySelectorAll('[data-f]').forEach(i=>B.f[i.dataset.f]=i.type=='checkbox'?i.checked:i.value)}
+render();
+</script>
+</body>
+</html>
