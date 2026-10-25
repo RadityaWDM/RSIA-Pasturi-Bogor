@@ -2,6 +2,10 @@
 -- Cakupan: pasien, dokter & jadwal, booking, antrean, notifikasi WhatsApp, keluhan, audit.
 -- Catatan: rancangan awal untuk prototipe. Belum mencakup rekam medis, farmasi, dan billing (SIMRS yang ada).
 
+-- Semua objek dibuat di schema tersendiri, bukan public, agar terpisah dari aplikasi lain di database yang sama.
+CREATE SCHEMA IF NOT EXISTS rsia;
+SET search_path TO rsia;
+
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- ========== MASTER ==========
@@ -183,7 +187,7 @@ BEGIN
      AND b.status <> 'BATAL' AND b.id IS DISTINCT FROM NEW.id;
   IF terpakai >= kuota THEN RAISE EXCEPTION 'Slot penuh'; END IF;
   RETURN NEW;
-END $$ LANGUAGE plpgsql;
+END $$ LANGUAGE plpgsql SET search_path = rsia;
 CREATE TRIGGER trg_kuota BEFORE INSERT OR UPDATE OF dokter_id, tanggal, jam ON booking
   FOR EACH ROW WHEN (NEW.status <> 'BATAL') EXECUTE FUNCTION cek_kuota_slot();
 -- Booking yang dibatalkan lalu diaktifkan kembali juga harus lolos cek kuota
@@ -240,7 +244,7 @@ CREATE FUNCTION ambil_nomor_antrean(p_tanggal DATE, p_poli SMALLINT) RETURNS SMA
   INSERT INTO antrean_counter (tanggal, poli_id, terakhir) VALUES (p_tanggal, p_poli, 1)
   ON CONFLICT (tanggal, poli_id) DO UPDATE SET terakhir = antrean_counter.terakhir + 1
   RETURNING terakhir;
-$$ LANGUAGE sql;
+$$ LANGUAGE sql SET search_path = rsia;
 
 -- ========== NOTIFIKASI WHATSAPP ==========
 CREATE TABLE notifikasi_wa (

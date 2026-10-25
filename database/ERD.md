@@ -78,4 +78,4 @@ erDiagram
 ## Batasan
 
 - Rekam medis, farmasi, dan billing tidak masuk cakupan; tetap di SIMRS.
-- Skema belum diuji pada PostgreSQL sungguhan (belum ada instance di komputer ini). Jalankan `psql -f schema.sql` pada database kosong untuk memeriksanya.
+- Skema sudah dijalankan di PostgreSQL 18.6 (container Docker lokal, database `simrs_dev`) tanpa error. Semua objek ada di schema `rsia`. Untuk memeriksanya ulang, jalankan `psql -v ON_ERROR_STOP=1 -f schema.sql` pada database kosong.

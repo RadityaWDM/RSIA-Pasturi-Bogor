@@ -9,7 +9,7 @@ Prototipe demo untuk manajemen RS. Buka `index.html` dengan klik dua kali, tanpa
 | Berkas | Fungsi |
 |---|---|
 | `index.html` | Prototipe interaktif (3 peran: Pasien, Staf, Manajemen). |
-| `database/schema.sql` | Rancangan database PostgreSQL (20 tabel, 3 view, trigger kuota, penomor antrean atomik). Belum diuji di PostgreSQL. |
+| `database/schema.sql` | Rancangan database PostgreSQL (19 tabel, 3 view, trigger kuota, penomor antrean atomik) di schema `rsia`. Sudah dijalankan di PostgreSQL 18.6 tanpa error; trigger kuota sudah diuji. |
 | `database/ERD.md` | Diagram relasi entitas (Mermaid) dan alasan desain. |
 | `Analisis-Kebutuhan-dan-Rekomendasi.md` | Analisis kebutuhan, kesenjangan Khanza, perbandingan opsi, keputusan, dan rencana tindak lanjut. |
 | `demo/rsia-pasutri-demo.mp4` | Video demo 9,5 menit (1280×720, tanpa suara, dengan kursor dan teks penjelasan): sisi pasien, staf, dan manajemen. |
