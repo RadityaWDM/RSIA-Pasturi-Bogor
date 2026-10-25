@@ -25,6 +25,12 @@ erDiagram
   keluhan ||--o{ keluhan_tindak_lanjut : ditanggapi
   keluhan ||--o{ notifikasi_wa : dibalas
   pengguna ||--o{ audit_log : melakukan
+  jadwal_pengecualian { int id PK
+    date tanggal
+    varchar jenis
+    time jam_mulai
+    time jam_selesai
+    smallint kuota_per_slot }
   booking { bigint id PK
     varchar kode UK
     date tanggal
@@ -56,7 +62,10 @@ erDiagram
 |---|---|
 | Hari "tidak tersedia" baru diketahui setelah pasien memilih | `jadwal_praktik` per dokter per hari; UI hanya menawarkan slot yang ada. Cuti lewat `jadwal_pengecualian`. |
 | Booking ganda dan slot penuh | Indeks unik parsial `uq_booking_aktif` + trigger `cek_kuota_slot` dengan advisory lock (aman saat dua pasien klik bersamaan). |
-| Jadwal bentrok dua sesi dokter | `EXCLUDE USING gist` pada `jadwal_praktik`. |
+| Jadwal bentrok dua sesi dokter | `EXCLUDE USING gist` pada `jadwal_praktik`. Bentrok dihitung hanya bila rentang `berlaku_dari`–`berlaku_sampai` juga bertemu, sehingga jadwal baru bisa menggantikan jadwal lama tanpa menghapus riwayat. |
+| Libur, jam berubah, dan praktik tambahan pada satu tanggal | `jadwal_pengecualian` dengan jenis `LIBUR`, `UBAH_JAM`, dan `TAMBAHAN`. Trigger `cek_kuota_slot` membaca ketiganya. `UBAH_JAM` dan `TAMBAHAN` menggantikan jam rutin dan wajib mengisi `kuota_per_slot`; satu tanggal hanya boleh punya satu pengecualian jam. |
+| Slot tidak punya ukuran, jam booking bebas | Slot dimulai pada `jam_mulai` praktik dan berulang setiap `poliklinik.durasi_menit`. Trigger menolak jam yang tidak kelipatan durasi dan slot yang selesai lewat jam tutup. Jadwal rutin juga dicocokkan dengan `poli_id` booking. |
+| Booking dibatalkan lalu diaktifkan lagi melewati kuota | Trigger `trg_kuota_aktifkan` memeriksa kuota saat status kembali dari `BATAL`. |
 | Data dokter tidak konsisten ("Sp.A" vs "Sp. A.") | Nama, `gelar_depan`, `gelar_belakang` dipisah; `jenis_tenaga` membedakan dokter, dokter gigi, terapis. |
 | Penjamin hanya pilihan tanpa detail | `penjamin` (master) + `pasien_penjamin` (no. kartu) + `booking.no_rujukan`. |
 | NIK/HP tanpa validasi | `CHECK` regex di level database, bukan hanya di form. |

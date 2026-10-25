@@ -1,4 +1,4 @@
--- RSIA Pasutri Bogor: rancangan database (PostgreSQL 15+)
+-- RSIA Pasutri Bogor: rancangan database (PostgreSQL 18, minimal 17)
 -- Cakupan: pasien, dokter & jadwal, booking, antrean, notifikasi WhatsApp, keluhan, audit.
 -- Catatan: rancangan awal untuk prototipe. Belum mencakup rekam medis, farmasi, dan billing (SIMRS yang ada).
 
@@ -47,22 +47,31 @@ CREATE TABLE jadwal_praktik (
   FOREIGN KEY (dokter_id, poli_id) REFERENCES dokter_poli(dokter_id, poli_id),
   CHECK (jam_selesai > jam_mulai),
   -- satu dokter tidak boleh punya dua jadwal tumpang tindih di hari yang sama
+  -- pada rentang berlaku yang sama; jadwal lama dan baru boleh berdampingan bila rentangnya tidak bertemu
   EXCLUDE USING gist (
     dokter_id WITH =, hari WITH =,
-    tsrange(('2000-01-01'::date + jam_mulai), ('2000-01-01'::date + jam_selesai)) WITH &&
+    tsrange(('2000-01-01'::date + jam_mulai), ('2000-01-01'::date + jam_selesai)) WITH &&,
+    daterange(berlaku_dari, berlaku_sampai, '[]') WITH &&
   )
 );
 
 -- Cuti / libur / perubahan jadwal sesaat
+-- LIBUR: tidak ada praktik. UBAH_JAM: ganti jam praktik pada tanggal itu. TAMBAHAN: praktik di luar jadwal rutin.
 CREATE TABLE jadwal_pengecualian (
   id         SERIAL PRIMARY KEY,
   dokter_id  INT  NOT NULL REFERENCES dokter(id),
   tanggal    DATE NOT NULL,
   jenis      VARCHAR(10) NOT NULL CHECK (jenis IN ('LIBUR','TAMBAHAN','UBAH_JAM')),
   jam_mulai  TIME, jam_selesai TIME,
+  kuota_per_slot SMALLINT CHECK (kuota_per_slot > 0),  -- wajib untuk UBAH_JAM dan TAMBAHAN
   alasan     VARCHAR(200),
-  UNIQUE (dokter_id, tanggal, jenis)
+  UNIQUE (dokter_id, tanggal, jenis),
+  CHECK (jenis = 'LIBUR' OR (jam_mulai IS NOT NULL AND jam_selesai > jam_mulai)),
+  CHECK (jenis = 'LIBUR' OR kuota_per_slot IS NOT NULL)
 );
+-- Pada satu tanggal hanya boleh ada satu pengecualian jam (UBAH_JAM atau TAMBAHAN)
+CREATE UNIQUE INDEX uq_pengecualian_jam ON jadwal_pengecualian (dokter_id, tanggal)
+  WHERE jenis <> 'LIBUR';
 
 CREATE TABLE penjamin (
   id    SMALLSERIAL PRIMARY KEY,
@@ -136,19 +145,38 @@ CREATE UNIQUE INDEX uq_booking_aktif ON booking (pasien_id, dokter_id, tanggal)
 CREATE INDEX ix_booking_slot   ON booking (dokter_id, tanggal, jam) WHERE status <> 'BATAL';
 CREATE INDEX ix_booking_tgl    ON booking (tanggal, status);
 
--- Kuota slot ditegakkan di database (aman dari race condition)
+-- Kuota dan grid slot ditegakkan di database (aman dari race condition).
+-- Slot dimulai pada jam_mulai praktik lalu berulang setiap durasi_menit poli (mis. 08:00, 08:20, 08:40 untuk 20 menit).
 CREATE FUNCTION cek_kuota_slot() RETURNS trigger AS $$
-DECLARE kuota INT; terpakai INT;
+DECLARE kuota INT; terpakai INT; x RECORD; durasi INT; ws TIME; we TIME;
 BEGIN
-  SELECT j.kuota_per_slot INTO kuota FROM jadwal_praktik j
-   WHERE j.dokter_id = NEW.dokter_id AND j.hari = EXTRACT(DOW FROM NEW.tanggal)
-     AND NEW.jam >= j.jam_mulai AND NEW.jam < j.jam_selesai
-     AND NEW.tanggal >= j.berlaku_dari AND (j.berlaku_sampai IS NULL OR NEW.tanggal <= j.berlaku_sampai)
-   LIMIT 1;
-  IF kuota IS NULL THEN RAISE EXCEPTION 'Dokter tidak praktik pada hari/jam tersebut'; END IF;
   IF EXISTS (SELECT 1 FROM jadwal_pengecualian e WHERE e.dokter_id = NEW.dokter_id
               AND e.tanggal = NEW.tanggal AND e.jenis = 'LIBUR') THEN
     RAISE EXCEPTION 'Dokter libur/cuti pada tanggal tersebut'; END IF;
+
+  -- Pengecualian UBAH_JAM atau TAMBAHAN pada tanggal ini menggantikan jadwal rutin
+  SELECT e.jam_mulai, e.jam_selesai, e.kuota_per_slot INTO x
+    FROM jadwal_pengecualian e
+   WHERE e.dokter_id = NEW.dokter_id AND e.tanggal = NEW.tanggal AND e.jenis IN ('UBAH_JAM','TAMBAHAN');
+  IF FOUND THEN
+    ws := x.jam_mulai; we := x.jam_selesai; kuota := x.kuota_per_slot;
+  ELSE
+    SELECT j.jam_mulai, j.jam_selesai, j.kuota_per_slot INTO ws, we, kuota FROM jadwal_praktik j
+     WHERE j.dokter_id = NEW.dokter_id AND j.poli_id = NEW.poli_id AND j.hari = EXTRACT(DOW FROM NEW.tanggal)
+       AND NEW.jam >= j.jam_mulai AND NEW.jam < j.jam_selesai
+       AND NEW.tanggal >= j.berlaku_dari AND (j.berlaku_sampai IS NULL OR NEW.tanggal <= j.berlaku_sampai)
+     LIMIT 1;
+  END IF;
+  IF kuota IS NULL THEN RAISE EXCEPTION 'Dokter tidak praktik pada hari/jam tersebut'; END IF;
+  IF NEW.jam < ws OR NEW.jam >= we THEN RAISE EXCEPTION 'Di luar jam praktik pada tanggal tersebut'; END IF;
+
+  -- Grid slot: jam harus kelipatan durasi poli dari awal praktik, dan slot harus selesai sebelum jam tutup
+  SELECT p.durasi_menit INTO durasi FROM poliklinik p WHERE p.id = NEW.poli_id;
+  IF (EXTRACT(EPOCH FROM (NEW.jam - ws))::INT / 60) % durasi <> 0 THEN
+    RAISE EXCEPTION 'Jam % tidak sesuai slot % menit mulai pukul %', NEW.jam, durasi, ws; END IF;
+  IF NEW.jam + durasi * INTERVAL '1 minute' > we THEN
+    RAISE EXCEPTION 'Slot pada jam % melewati jam selesai praktik %', NEW.jam, we; END IF;
+
   PERFORM pg_advisory_xact_lock(hashtext(NEW.dokter_id || NEW.tanggal::text || NEW.jam::text));
   SELECT count(*) INTO terpakai FROM booking b
    WHERE b.dokter_id = NEW.dokter_id AND b.tanggal = NEW.tanggal AND b.jam = NEW.jam
@@ -158,6 +186,9 @@ BEGIN
 END $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_kuota BEFORE INSERT OR UPDATE OF dokter_id, tanggal, jam ON booking
   FOR EACH ROW WHEN (NEW.status <> 'BATAL') EXECUTE FUNCTION cek_kuota_slot();
+-- Booking yang dibatalkan lalu diaktifkan kembali juga harus lolos cek kuota
+CREATE TRIGGER trg_kuota_aktifkan BEFORE UPDATE OF status ON booking
+  FOR EACH ROW WHEN (OLD.status = 'BATAL' AND NEW.status <> 'BATAL') EXECUTE FUNCTION cek_kuota_slot();
 
 CREATE TABLE antrean (
   id            BIGSERIAL PRIMARY KEY,
