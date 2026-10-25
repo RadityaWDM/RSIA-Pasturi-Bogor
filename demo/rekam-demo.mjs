@@ -1,13 +1,14 @@
 // Perekam video demo RSIA Pasutri Bogor.
-// Pakai: node rekam.mjs [--dry]   (--dry = uji cepat tanpa rekaman)
+// Pakai: node demo/rekam-demo.mjs [--dry]   (--dry = uji cepat tanpa rekaman)
 // Butuh: playwright-core + Google Chrome. Keluaran: webm di folder OUT.
 import { chromium } from 'playwright-core';
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const DRY = process.argv.includes('--dry');
 const SPEED = DRY ? 8 : 1;
-const INDEX = process.env.INDEX || 'C:/Claude/RSIA Pasutri Bogor/index.html';
+const INDEX = process.env.INDEX || fileURLToPath(new URL('../index.html', import.meta.url));
 const OUT = process.env.OUT || path.resolve('out');
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 fs.mkdirSync(OUT, { recursive: true });
