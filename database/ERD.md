@@ -33,11 +33,13 @@ erDiagram
     smallint kuota_per_slot }
   booking { bigint id PK
     varchar kode UK
+    varchar no_rawat UK
     date tanggal
     time jam
     enum status
     varchar kanal }
   pasien { bigint id PK
+    varchar no_rkm_medis UK
     char nik UK
     varchar no_wa
     timestamptz setuju_privasi_pada }
@@ -78,4 +80,4 @@ erDiagram
 ## Batasan
 
 - Rekam medis, farmasi, dan billing tidak masuk cakupan; tetap di SIMRS.
-- Skema sudah dijalankan di PostgreSQL 18.6 (container Docker lokal, database `simrs_dev`) tanpa error. Semua objek ada di schema `rsia`. Untuk memeriksanya ulang, jalankan `psql -v ON_ERROR_STOP=1 -f schema.sql` pada database kosong.
+- Skema sudah dijalankan di PostgreSQL 18.6 (container Docker lokal, database `simrs_dev`) tanpa error. Semua objek ada di schema `rsia`. Database lama yang sudah berisi skema sebelumnya dimigrasi dengan `migrasi-kunci-khanza.sql` (diuji 2026-10-28 di PostgreSQL 18.6). Untuk memeriksanya ulang, jalankan `psql -v ON_ERROR_STOP=1 -f schema.sql` pada database kosong.

@@ -86,15 +86,13 @@ CREATE TABLE penjamin (
 );
 
 -- ========== PASIEN ==========
+-- Identitas minimal saja. Data demografis (tanggal lahir, jenis kelamin, agama, alamat)
+-- tidak disalin: dibaca langsung dari database Khanza memakai no_rkm_medis.
 CREATE TABLE pasien (
   id            BIGSERIAL PRIMARY KEY,
-  no_rm         VARCHAR(12) UNIQUE,                 -- diisi saat terhubung ke SIMRS
+  no_rkm_medis  VARCHAR(15) UNIQUE,                 -- kunci ke pasien.no_rkm_medis di Khanza; NULL sampai pasien terdaftar
   nik           CHAR(16) NOT NULL UNIQUE CHECK (nik ~ '^[0-9]{16}$'),
-  nama_lengkap  VARCHAR(120) NOT NULL,
-  tanggal_lahir DATE NOT NULL CHECK (tanggal_lahir <= CURRENT_DATE),
-  jenis_kelamin CHAR(1) CHECK (jenis_kelamin IN ('L','P')),
-  agama         VARCHAR(15),
-  alamat        TEXT,
+  nama_lengkap  VARCHAR(120) NOT NULL,              -- untuk pencocokan booking; tampilan di layar disamarkan
   no_wa         VARCHAR(16) NOT NULL CHECK (no_wa ~ '^(\+62|62|0)8[0-9]{8,12}$'),
   setuju_privasi_pada TIMESTAMPTZ NOT NULL,         -- bukti persetujuan (UU PDP)
   dibuat_pada   TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -133,6 +131,7 @@ CREATE TABLE booking (
   no_kartu      VARCHAR(30),
   no_rujukan    VARCHAR(40),                        -- wajib bila BPJS + poli spesialis
   penanggung_jawab_id BIGINT REFERENCES penanggung_jawab(id),
+  no_rawat      VARCHAR(17) UNIQUE,                 -- kunci ke reg_periksa.no_rawat di Khanza; NULL sampai booking terdaftar di Khanza
   kanal         VARCHAR(10) NOT NULL DEFAULT 'WEB'
                 CHECK (kanal IN ('WEB','WHATSAPP','TELEPON','WALKIN')),
   status        status_booking NOT NULL DEFAULT 'TERJADWAL',

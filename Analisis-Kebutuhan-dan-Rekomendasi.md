@@ -138,7 +138,7 @@ Prioritas memakai MoSCoW. **Semua kebutuhan perlu dikonfirmasi ke klien**; ini t
 
 - **Khanza tetap pusat** untuk data pasien dan nomor antrean.
 - **Aplikasi baru** (server terpisah, sistem yang sudah kita buat sebagai prototipe) menangani booking web, WhatsApp, layar antrean, status dilewati, peringatan dokter terlambat, jejak audit, dan dashboard.
-- **Jalur ke Khanza** ditentukan bersama tim IT: akses baca ke replika database, atau jalur perantara. Tidak membuka Khanza ke internet.
+- **Jalur ke Khanza:** aplikasi baru membaca detail langsung dari database Khanza, tanpa replika, lewat akun read-only. Keputusan ini perlu disetujui tim IT. Tidak membuka Khanza ke internet.
 - **Mode tahan gangguan:** jika koneksi ke Khanza putus, tetap bisa memberi nomor sementara dan disinkronkan setelah pulih, dengan penandaan jelas.
 - **Prinsip nomor antrean:** satu sumber. Jika sumber nomor kita pindahkan ke aplikasi baru, itu keputusan bersama dengan IT, bukan default.
 
@@ -180,7 +180,7 @@ Mode darurat, pemantauan, uji beban jam sibuk, pelatihan, uji coba terbatas di s
 
 ### Untuk tim IT (teknis)
 1. Versi Khanza yang dipakai, dan kapan terakhir diperbarui?
-2. Server dan database: satu mesin atau terpisah, berapa pengguna bersamaan, dan apakah ada replika?
+2. Server dan database: satu mesin atau terpisah, berapa pengguna bersamaan, dan berapa beban baca yang aman di jam sibuk?
 3. "Nomor error" itu seperti apa: pesan error, kapan terjadi (jam sibuk?), di komputer mana, seberapa sering?
 4. Apakah ada log error dan data waktu pendaftaran yang bisa diminta?
 5. Apakah modul antrean poli, anjungan pasien mandiri, dan layar antrean Khanza dipakai? Kalau tidak, kenapa?
