@@ -9,8 +9,9 @@ Prototipe demo untuk manajemen RS. Buka `index.html` dengan klik dua kali, tanpa
 | Berkas | Fungsi |
 |---|---|
 | `index.html` | Prototipe interaktif (3 peran: Pasien, Staf, Manajemen). |
-| `database/schema.sql` | Rancangan database PostgreSQL 9.5+ di schema `rsia`: 19 tabel dengan PK, FK, UNIQUE, CHECK, dan index. Tanpa trigger, fungsi, dan view; aturan kuota dan nomor antrean dijaga aplikasi. Belum dijalankan di server 9.5. Versi lama dijalankan di PostgreSQL 18.6. |
-| `database/migrasi-kunci-khanza.sql` | Migrasi sekali jalan untuk database yang sudah berisi skema lama: menambah kolom kunci ke Khanza (`pasien.no_rkm_medis`, `booking.no_rawat`) dan **menghapus** kolom demografis pasien. Ambil cadangan dulu. Diuji di PostgreSQL 18.6 dengan skema lama. |
+| `database/schema.sql` | Rancangan database PostgreSQL 9.5+ di schema `rsia`: 19 tabel dengan PK, FK, UNIQUE, CHECK, dan index. Tanpa trigger, fungsi, dan view; aturan kuota dan nomor antrean dijaga aplikasi. Sudah dijalankan di PostgreSQL 9.5.25 (2026-10-31). Versi lama dijalankan di PostgreSQL 18.6. |
+| `database/migrasi-kunci-khanza.sql` | Migrasi sekali jalan untuk database yang sudah berisi skema lama: menambah kolom kunci ke Khanza (`pasien.no_rkm_medis`, `booking.no_rawat`) dan **menghapus** kolom demografis pasien. Ambil cadangan dulu. Diuji di PostgreSQL 18.6 dengan skema lama, dan dijalankan di PostgreSQL 9.5.25 pada 2026-10-31. |
+| `database/seed-simrs-pg95.js` | Generator data contoh untuk database `khanza` dan `rsia` di PostgreSQL 9.5. Membaca katalog database `khanza`, lalu menulis dua berkas SQL: satu untuk `khanza`, satu untuk `rsia`. Data acak, bukan data pasien nyata. |
 | `database/ERD.md` | Diagram relasi entitas (Mermaid) dan alasan desain. |
 | `Analisis-Kebutuhan-dan-Rekomendasi.md` | Analisis kebutuhan, kesenjangan Khanza, perbandingan opsi, keputusan, dan rencana tindak lanjut. |
 | `demo/rsia-pasutri-demo.mp4` | Video demo 9,5 menit (1280×720, tanpa suara, dengan kursor dan teks penjelasan): sisi pasien, staf, dan manajemen. |

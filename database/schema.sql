@@ -9,8 +9,7 @@ SET search_path TO rsia;
 -- ========== MASTER ==========
 CREATE TABLE poliklinik (
   id            SMALLSERIAL PRIMARY KEY,
-  kode          VARCHAR(5)  NOT NULL UNIQUE,
-  nama          VARCHAR(80) NOT NULL UNIQUE,
+  kd_poli       VARCHAR(5)  NOT NULL UNIQUE,  -- sama dengan poliklinik.kd_poli di Khanza
   durasi_menit  SMALLINT    NOT NULL CHECK (durasi_menit BETWEEN 5 AND 120),
   bisa_booking  BOOLEAN     NOT NULL DEFAULT TRUE,
   aktif         BOOLEAN     NOT NULL DEFAULT TRUE
@@ -18,9 +17,7 @@ CREATE TABLE poliklinik (
 
 CREATE TABLE dokter (
   id             SERIAL PRIMARY KEY,
-  nama_lengkap   VARCHAR(120) NOT NULL,
-  gelar_depan    VARCHAR(20),
-  gelar_belakang VARCHAR(60),
+  kd_dokter      VARCHAR(20) NOT NULL UNIQUE,  -- kode dokter di Khanza (dokter.kd_dokter)
   jenis_tenaga   VARCHAR(20) NOT NULL DEFAULT 'DOKTER'
                  CHECK (jenis_tenaga IN ('DOKTER','DOKTER_GIGI','TERAPIS')),
   no_str         VARCHAR(30) UNIQUE,
@@ -71,20 +68,18 @@ CREATE UNIQUE INDEX uq_pengecualian_jam ON jadwal_pengecualian (dokter_id, tangg
 
 -- ========== PENJAMIN ==========
 CREATE TABLE penjamin (
-  id    SMALLSERIAL PRIMARY KEY,
-  jenis VARCHAR(10) NOT NULL CHECK (jenis IN ('UMUM','BPJS','ASURANSI','PERUSAHAAN')),
-  nama  VARCHAR(100) NOT NULL,
-  aktif BOOLEAN NOT NULL DEFAULT TRUE,
-  UNIQUE (jenis, nama)
+  id     SMALLSERIAL PRIMARY KEY,
+  kd_pj  CHAR(3) UNIQUE,  -- kode penjab di Khanza; NULL jika penjamin tidak ada di Khanza
+  jenis  VARCHAR(10) NOT NULL CHECK (jenis IN ('UMUM','BPJS','ASURANSI','PERUSAHAAN')),
+  aktif  BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- ========== PASIEN ==========
 CREATE TABLE pasien (
   id                  BIGSERIAL PRIMARY KEY,
   no_rkm_medis        VARCHAR(15) UNIQUE,
-  nik                 CHAR(16) NOT NULL UNIQUE CHECK (nik ~ '^[0-9]{16}$'),
-  nama_lengkap        VARCHAR(120) NOT NULL,
-  no_wa               VARCHAR(16) NOT NULL CHECK (no_wa ~ '^(\+62|62|0)8[0-9]{8,12}$'),
+  no_ktp              VARCHAR(20) NOT NULL UNIQUE CHECK (no_ktp ~ '^[0-9]{16}$'),  -- sama dengan pasien.no_ktp di Khanza
+  no_tlp              VARCHAR(40) NOT NULL CHECK (no_tlp ~ '^(\+62|62|0)8[0-9]{8,12}$'),
   setuju_privasi_pada TIMESTAMPTZ NOT NULL,
   dibuat_pada         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -93,9 +88,9 @@ CREATE TABLE pasien_penjamin (
   id           BIGSERIAL PRIMARY KEY,
   pasien_id    BIGINT   NOT NULL REFERENCES pasien(id),
   penjamin_id  SMALLINT NOT NULL REFERENCES penjamin(id),
-  no_kartu     VARCHAR(30),
+  no_peserta   VARCHAR(25),
   aktif_sampai DATE,
-  UNIQUE (pasien_id, penjamin_id, no_kartu)
+  UNIQUE (pasien_id, penjamin_id, no_peserta)
 );
 
 CREATE TABLE penanggung_jawab (
@@ -109,15 +104,15 @@ CREATE TABLE penanggung_jawab (
 -- ========== BOOKING & ANTREAN ==========
 CREATE TABLE booking (
   id                  BIGSERIAL PRIMARY KEY,
-  kode                VARCHAR(10) NOT NULL UNIQUE,
+  nobooking           VARCHAR(15) NOT NULL UNIQUE,
   pasien_id           BIGINT   NOT NULL REFERENCES pasien(id),
   dokter_id           INT      NOT NULL,
   poli_id             SMALLINT NOT NULL,
-  tanggal             DATE     NOT NULL,
-  jam                 TIME     NOT NULL,
+  tanggal_periksa     DATE     NOT NULL,
+  jam_booking         TIME     NOT NULL,
   penjamin_id         SMALLINT NOT NULL REFERENCES penjamin(id),
-  no_kartu            VARCHAR(30),
-  no_rujukan          VARCHAR(40),
+  nomorkartu          VARCHAR(25),
+  nomorreferensi      VARCHAR(40),
   penanggung_jawab_id BIGINT REFERENCES penanggung_jawab(id),
   no_rawat            VARCHAR(17) UNIQUE,
   kanal               VARCHAR(10) NOT NULL DEFAULT 'WEB'
@@ -132,24 +127,24 @@ CREATE TABLE booking (
   FOREIGN KEY (dokter_id, poli_id) REFERENCES dokter_poli(dokter_id, poli_id)
 );
 -- Cegah booking ganda: satu pasien, satu dokter, satu hari
-CREATE UNIQUE INDEX uq_booking_aktif ON booking (pasien_id, dokter_id, tanggal)
+CREATE UNIQUE INDEX uq_booking_aktif ON booking (pasien_id, dokter_id, tanggal_periksa)
   WHERE status IN ('TERJADWAL','HADIR','DIPANGGIL','DILAYANI');
-CREATE INDEX ix_booking_slot ON booking (dokter_id, tanggal, jam);
-CREATE INDEX ix_booking_tgl  ON booking (tanggal, status);
+CREATE INDEX ix_booking_slot ON booking (dokter_id, tanggal_periksa, jam_booking);
+CREATE INDEX ix_booking_tgl  ON booking (tanggal_periksa, status);
 
 CREATE TABLE antrean (
   id             BIGSERIAL PRIMARY KEY,
   booking_id     BIGINT NOT NULL UNIQUE REFERENCES booking(id),
-  tanggal        DATE   NOT NULL,
+  tgl_registrasi DATE   NOT NULL,
   poli_id        SMALLINT NOT NULL REFERENCES poliklinik(id),
-  nomor          SMALLINT NOT NULL,
+  no_reg         VARCHAR(8) NOT NULL,  -- sama dengan reg_periksa.no_reg di Khanza
   waktu_checkin  TIMESTAMPTZ,
   waktu_panggil  TIMESTAMPTZ,
   waktu_mulai    TIMESTAMPTZ,
   waktu_selesai  TIMESTAMPTZ,
   jumlah_panggil SMALLINT NOT NULL DEFAULT 0,
   loket          VARCHAR(10),
-  UNIQUE (tanggal, poli_id, nomor)
+  UNIQUE (tgl_registrasi, poli_id, no_reg)
 );
 
 CREATE TABLE antrean_counter (

@@ -32,16 +32,16 @@ erDiagram
     time jam_selesai
     smallint kuota_per_slot }
   booking { bigint id PK
-    varchar kode UK
+    varchar nobooking UK
     varchar no_rawat UK
-    date tanggal
-    time jam
+    date tanggal_periksa
+    time jam_booking
     varchar status
     varchar kanal }
   pasien { bigint id PK
     varchar no_rkm_medis UK
-    char nik UK
-    varchar no_wa
+    varchar no_ktp UK
+    varchar no_tlp
     timestamptz setuju_privasi_pada }
   jadwal_praktik { int id PK
     smallint hari
@@ -49,7 +49,7 @@ erDiagram
     time jam_selesai
     smallint kuota_per_slot }
   antrean { bigint id PK
-    smallint nomor
+    varchar no_reg
     timestamptz waktu_checkin
     timestamptz waktu_mulai }
   keluhan { bigint id PK
@@ -69,8 +69,8 @@ erDiagram
 | Libur, jam berubah, dan praktik tambahan pada satu tanggal | `jadwal_pengecualian` dengan jenis `LIBUR`, `UBAH_JAM`, dan `TAMBAHAN`. Aplikasi membaca ketiganya. `UBAH_JAM` dan `TAMBAHAN` menggantikan jam rutin dan wajib mengisi `kuota_per_slot`; satu tanggal hanya boleh punya satu pengecualian jam. |
 | Slot tidak punya ukuran, jam booking bebas | Slot dimulai pada `jam_mulai` praktik dan berulang setiap `poliklinik.durasi_menit`. Aplikasi menolak jam yang tidak kelipatan durasi dan slot yang selesai lewat jam tutup. Aplikasi juga mencocokkan jadwal rutin dengan `poli_id` booking. |
 | Booking dibatalkan lalu diaktifkan lagi melewati kuota | Aplikasi memeriksa kuota saat status kembali dari `BATAL`. |
-| Data dokter tidak konsisten ("Sp.A" vs "Sp. A.") | Nama, `gelar_depan`, `gelar_belakang` dipisah; `jenis_tenaga` membedakan dokter, dokter gigi, terapis. |
-| Penjamin hanya pilihan tanpa detail | `penjamin` (master) + `pasien_penjamin` (no. kartu) + `booking.no_rujukan`. |
+| Data dokter tidak konsisten ("Sp.A" vs "Sp. A.") | Nama dokter tidak disimpan di RSIA. Nama dibaca dari Khanza lewat `dokter.kd_dokter`; `jenis_tenaga` membedakan dokter, dokter gigi, terapis. |
+| Penjamin hanya pilihan tanpa detail | `penjamin` (master) + `pasien_penjamin` (no. kartu) + `booking.nomorreferensi`. |
 | NIK/HP tanpa validasi | `CHECK` regex di level database, bukan hanya di form. |
 | Nomor antrean terlewat, tidak jelas siapa memanggil siapa | Status `DILEWATI` dan `jumlah_dilewati` (1x boleh dipanggil ulang, 2x menjadi tidak hadir). Urutan per dokter (jam booking, lalu nomor) dihitung aplikasi. Panggilan di luar urutan wajib beralasan dan masuk `audit_log`. |
 | Antrean terasa sangat lama karena dokter terlambat tanpa kabar | Tabel `keterlambatan_dokter`: memicu WhatsApp ke seluruh pasien dokter itu, menggeser estimasi, dan menjadi data untuk dashboard manajemen. |
@@ -81,8 +81,9 @@ erDiagram
 ## Batasan
 
 - Rekam medis, farmasi, dan billing tidak masuk cakupan; tetap di SIMRS.
-- Skema ditujukan untuk PostgreSQL 9.5 atau lebih baru. Skema sudah diubah agar sesuai 9.5, tetapi belum dijalankan di server 9.5. Semua objek ada di schema `rsia`.
+- Skema ditujukan untuk PostgreSQL 9.5 atau lebih baru. Skema sudah dijalankan di PostgreSQL 9.5.25 dan sama dengan `schema.sql` sejak 2026-10-31. Semua objek ada di schema `rsia`.
 - Skema hanya berisi tabel, PK, FK, UNIQUE, CHECK, dan index. Tidak ada trigger, fungsi, view, atau extension. Aturan yang dulu dijaga database sekarang dijaga aplikasi (lihat tabel keputusan).
 - Skema versi lama sudah dijalankan di PostgreSQL 18.6 (container Docker lokal, database `simrs_dev`) tanpa error. Database yang berisi skema lama tidak dibersihkan otomatis.
-- Migrasi `migrasi-kunci-khanza.sql` diuji 2026-10-28 di PostgreSQL 18.6 dengan skema lama. Belum diuji setelah perubahan ini.
+- Database `simrs_dev` di PostgreSQL 9.5 (container `postgresql95_3`) sudah dihapus pada 2026-10-31. Data contohnya dipindah ke database `rsia` (schema `rsia`) dan `khanza` (schema `khanza`). Lihat [data contoh](../../docs/09-konversi-khanza-pg95.md#-data-contoh).
+- Migrasi `migrasi-kunci-khanza.sql` diuji 2026-10-28 di PostgreSQL 18.6 dengan skema lama. Pada 2026-10-31 ditulis ulang agar berjalan di 9.5 dan diuji di salinan database. Setelah itu dijalankan di `rsia` PostgreSQL 9.5.25 setelah cadangan dibuat.
 - Untuk memeriksa skema baru, jalankan `psql -v ON_ERROR_STOP=1 -f schema.sql` pada database kosong.
